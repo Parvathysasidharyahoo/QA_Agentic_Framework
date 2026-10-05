@@ -29,11 +29,12 @@ const GIT_BASH = (() => {
 })();
 
 // Folders whose contents the UI is allowed to serve back as report links.
-const OUTPUT_DIRS = ['Requirement', 'TestCases', 'TestDesign', 'TestResults', 'FailureAnalysis', 'ReleaseReadiness', 'PipelineReports'];
+const OUTPUT_DIRS = ['Requirement', 'TestCases', 'TestDesign', 'TestReview', 'TestResults', 'FailureAnalysis', 'ReleaseReadiness', 'PipelineReports'];
 
 const STAGES = [
   'requirement-agent',
   'test-design-agent',
+  'test-review-agent', // independent review on a different model, before any automation is written
   'automation-agent',
   'execution-agent',
   'failure-analysis-agent',
@@ -229,6 +230,10 @@ const PROMPTS = {
   'requirement-agent': (c) => `Analyze the requirement in ${c.requirement} and write TestCases/${c.base}_TestDesign.csv.`,
   'test-design-agent': (c) => `Generate Playwright test scenarios from TestCases/${c.base}_TestDesign.csv and write TestDesign/${c.base}_PlaywrightScenarios.csv. ` +
     `Run the coverage check against the existing tests in TestAutomate/tests/ and write TestDesign/${c.base}_Coverage.json (always, even at 0%).`,
+  'test-review-agent': (c) =>
+    `Review the test cases for requirement ${c.base} against the requirement itself: ${c.requirement}, TestCases/${c.base}_TestDesign.csv, ` +
+    `TestDesign/${c.base}_PlaywrightScenarios.csv and TestDesign/${c.base}_Coverage.json. ` +
+    `Write TestReview/${c.base}_TestReview.json and TestReview/${c.base}_TestReview.md.`,
   'automation-agent': (c) => {
     const ids = `${c.base.replace(/[^A-Za-z0-9]/g, '')}-SCN-<n>`;
     const cov = c.coverage;
@@ -236,7 +241,10 @@ const PROMPTS = {
       : c.mappingOnly
         ? `MAPPING ONLY: all ${cov.total} scenarios are already covered by existing tests (see TestDesign/${c.base}_Coverage.json), and the user chose to re-execute them. Write no new tests and change no page objects: only add this requirement's Scenario IDs (${ids}) to each covering test's title, tags and annotations. `
         : `${cov.covered} of ${cov.total} scenarios (${cov.percent}%) are already covered by existing tests. Map those IDs onto the covering tests, and write new tests only for the ${cov.new} scenarios marked New in TestDesign/${c.base}_Coverage.json. `;
-    return `Automate the scenarios in TestDesign/${c.base}_PlaywrightScenarios.csv under TestAutomate/. ${plan}` +
+    const review = c.review?.findings?.length
+      ? `An independent reviewer left findings in TestReview/${c.base}_TestReview.md. Apply its recommendations where they concern how a scenario should be automated (e.g. wrong actor or account, a weak assertion, or a doubtful "already covered" mapping); don't rewrite the TestCases/TestDesign files. `
+      : '';
+    return `Automate the scenarios in TestDesign/${c.base}_PlaywrightScenarios.csv under TestAutomate/. ${plan}${review}` +
       `In your final report, list every spec file under TestAutomate/tests/ that now contains tests for these scenarios (new, extended, or mapped onto existing tests).`;
   },
   'execution-agent': (c) =>
@@ -249,7 +257,7 @@ const PROMPTS = {
   'failure-analysis-agent': (c) => `Analyze these test result reports and write the failure analysis CSV at exactly the path shown (write it even if a report has no failures):\n${c.reports.map((r) => `- ${r} → ${analysisPath(r)}`).join('\n')}`,
   'defect-triage-agent': (c) => `File Jira defects under parent issue ${c.parentIssue} for these failure analyses, writing the defects CSV at exactly the path shown (even if no defects qualify). Jira credentials are in the project's .env.\n${c.analyses.map((a) => `- ${a} → ${a.replace(/\.csv$/, '_JiraDefects.csv')}`).join('\n')}`,
   'release-agent': (c) =>
-    `Assess release readiness for requirement ${c.base} using these files, and save the report as ReleaseReadiness/${c.base}_ReleaseReadiness.html:\n${[...c.reports, ...c.analyses, ...c.defects].map((f) => `- ${f}`).join('\n')}`,
+    `Assess release readiness for requirement ${c.base} using these files, and save the report as ReleaseReadiness/${c.base}_ReleaseReadiness.html, plus its summary as ReleaseReadiness/${c.base}_ReleaseReadiness.json:\n${[...c.reports, ...c.analyses, ...c.defects, ...(c.review ? [`TestReview/${c.base}_TestReview.md (test case review: ${c.review.verdict}, score ${c.review.score})`] : [])].map((f) => `- ${f}`).join('\n')}`,
 };
 
 // Reads test-design-agent's coverage verdict. Counts are recomputed from the per-scenario list
@@ -266,11 +274,26 @@ function readCoverage(file) {
   };
 }
 
-// Pauses the run until someone answers on the page (POST /api/decision). Cancelling counts as "stop".
-function askDecision(question) {
+// Reads test-review-agent's verdict. Counts are taken from the findings list, and the verdict is
+// re-derived from them using the agent's own rules, so a mislabelled verdict can't skip the gate.
+function readReview(file) {
+  const j = JSON.parse(fs.readFileSync(path.join(PROJECT_ROOT, file), 'utf8'));
+  const findings = (Array.isArray(j.findings) ? j.findings : []).map((f) => ({
+    severity: /^crit/i.test(f.severity) ? 'Critical' : /^maj/i.test(f.severity) ? 'Major' : 'Minor',
+    area: f.area || '', ids: Array.isArray(f.ids) ? f.ids : [], issue: f.issue || '', recommendation: f.recommendation || '',
+  }));
+  const counts = { critical: 0, major: 0, minor: 0 };
+  for (const f of findings) counts[f.severity.toLowerCase()]++;
+  const verdict = counts.critical || counts.major >= 3 ? 'Changes required' : counts.major ? 'Approved with comments' : 'Approved';
+  const score = Math.max(0, 100 - 25 * counts.critical - 8 * counts.major - 2 * counts.minor);
+  return { verdict, score, counts, findings, agentVerdict: j.verdict || null };
+}
+
+// Pauses the run until someone answers on the page (POST /api/decision). Cancelling counts as "no".
+function askDecision(question, labels = { yes: 'Yes', no: 'No, stop here' }) {
   run.status = 'awaiting';
-  run.decision = { question, askedAt: Date.now() };
-  emit({ type: 'decision', question });
+  run.decision = { question, labels, askedAt: Date.now() };
+  emit({ type: 'decision', question, labels });
   return new Promise((resolve) => {
     const finish = (choice) => {
       run.resolveDecision = null;
@@ -279,7 +302,7 @@ function askDecision(question) {
       run.abort.signal.removeEventListener('abort', onAbort);
       resolve(choice);
     };
-    const onAbort = () => finish('stop');
+    const onAbort = () => finish('no');
     run.abort.signal.addEventListener('abort', onAbort);
     run.resolveDecision = finish;
   });
@@ -300,6 +323,17 @@ async function verify(stage, c, since) {
         c.coverage = readCoverage(covFile);
       } catch (err) {
         return `${covFile} is unreadable: ${err.message}`;
+      }
+      return null;
+    }
+    case 'test-review-agent': {
+      const file = `TestReview/${c.base}_TestReview.json`;
+      if (!isFresh(file, since)) return `${file} was not written`;
+      if (!isFresh(`TestReview/${c.base}_TestReview.md`, since)) return `TestReview/${c.base}_TestReview.md was not written`;
+      try {
+        c.review = readReview(file);
+      } catch (err) {
+        return `${file} is unreadable: ${err.message}`;
       }
       return null;
     }
@@ -342,6 +376,7 @@ function writePipelineReport(c) {
     `**Mode:** ${c.mode === 'rerun' ? 'Rerun — existing test scripts reused, stages 1–3 skipped' : 'Full pipeline'}  `,
     `**Parent Jira issue for defects:** ${c.parentIssue}  `,
     `**Run date:** ${new Date(run.startedAt).toISOString().slice(0, 16).replace('T', ' ')}`,
+    ...(c.review ? [`**Test case review:** ${c.review.verdict} (score ${c.review.score}): ${c.review.counts.critical} critical, ${c.review.counts.major} major, ${c.review.counts.minor} minor  `] : []),
     ...(c.coverage ? [`**Existing coverage:** ${c.coverage.covered}/${c.coverage.total} scenarios (${c.coverage.percent}%) already covered; ${c.coverage.new} new${c.mappingOnly ? ' (re-executed existing tests only)' : ''}  `] : []),
     '',
   ];
@@ -352,6 +387,85 @@ function writePipelineReport(c) {
   const out = `PipelineReports/${c.base}_PipelineReport.md`;
   fs.mkdirSync(path.join(PROJECT_ROOT, 'PipelineReports'), { recursive: true });
   fs.writeFileSync(path.join(PROJECT_ROOT, out), lines.join('\n'));
+}
+
+// ---- Report summary shown in the UI's Reporting section ----
+const htmlText = (file) => fs.readFileSync(path.join(PROJECT_ROOT, file), 'utf8')
+  .replace(/<style[\s\S]*?<\/style>|<script[\s\S]*?<\/script>/gi, ' ').replace(/<[^>]+>/g, ' ')
+  .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ');
+
+// Counts from the execution report's summary line ("Total 34 · Passed 34 · Failed 0 · …").
+function readTestCounts(file) {
+  if (!exists(file)) return null;
+  const text = htmlText(file);
+  const num = (label) => { const m = text.match(new RegExp(`\\b${label}\\b\\W{0,6}(\\d+(?:\\.\\d+)?)`, 'i')); return m ? Number(m[1]) : null; };
+  const total = num('Total');
+  if (total == null) return null;
+  const passed = num('Passed') ?? 0;
+  const dur = text.match(/\bDuration\W{0,6}(\d+(?:\.\d+)?)\s*(ms|s|m|min)?/i);
+  return {
+    total, passed, failed: num('Failed') ?? 0, flaky: num('Flaky') ?? 0, skipped: num('Skipped') ?? 0,
+    passRate: total ? Math.round((1000 * passed) / total) / 10 : 0,
+    duration: dur ? `${dur[1]}${dur[2] || 's'}` : null,
+  };
+}
+
+// The release call: from the agent's JSON when present, else read off the HTML banner.
+function readRelease(base) {
+  const json = `ReleaseReadiness/${base}_ReleaseReadiness.json`;
+  const html = `ReleaseReadiness/${base}_ReleaseReadiness.html`;
+  if (exists(json)) {
+    try {
+      const j = JSON.parse(fs.readFileSync(path.join(PROJECT_ROOT, json), 'utf8'));
+      return {
+        recommendation: j.recommendation || null, riskLevel: j.riskLevel || null,
+        qualityScore: j.qualityScore ?? null, summary: j.summary || '',
+        keyRisks: Array.isArray(j.keyRisks) ? j.keyRisks.slice(0, 5) : [],
+        conditions: Array.isArray(j.conditions) ? j.conditions.slice(0, 5) : [],
+      };
+    } catch { /* fall through to the HTML */ }
+  }
+  if (!exists(html)) return null;
+  const text = htmlText(html);
+  const rec = text.match(/Recommendation\W{0,4}(No[-\s]?Go|Go with conditions|Conditional Go|Not ready|Go)/i);
+  const risk = text.match(/Risk Level\W{0,4}(Trivial|Low|Medium|High)/i);
+  const score = text.match(/Quality Score\W{0,6}(\d{1,3})/i);
+  const norm = (r) => (/no[-\s]?go|not ready/i.test(r) ? 'No-Go' : /condition/i.test(r) ? 'Go with conditions' : 'Go');
+  return { recommendation: rec ? norm(rec[1]) : null, riskLevel: risk ? risk[1] : null, qualityScore: score ? Number(score[1]) : null, summary: '', keyRisks: [], conditions: [] };
+}
+
+// Jira defects this run filed (or found already filed), from the *_JiraDefects.csv files.
+function readDefects(files) {
+  let created = 0, existing = 0, failed = 0;
+  for (const f of files || []) {
+    if (!exists(f)) continue;
+    for (const line of fs.readFileSync(path.join(PROJECT_ROOT, f), 'utf8').split(/\r?\n/).slice(1)) {
+      if (/,\s*"?Created"?\s*,/i.test(line)) created++;
+      else if (/,\s*"?Already exists"?\s*,/i.test(line)) existing++;
+      else if (/,\s*"?Failed"?\s*,/i.test(line)) failed++;
+    }
+  }
+  return { created, existing, failed };
+}
+
+function buildSummary(c) {
+  const resultsFile = `TestResults/${c.base}_TestResults.html`;
+  const releaseFile = `ReleaseReadiness/${c.base}_ReleaseReadiness.html`;
+  // Only link reports this run actually produced, so an old report is never shown as this run's.
+  const fresh = (f) => isFresh(f, run.startedAt);
+  return {
+    requirement: c.base,
+    mode: c.mode,
+    tests: fresh(resultsFile) ? readTestCounts(resultsFile) : null,
+    release: fresh(releaseFile) ? readRelease(c.base) : null,
+    defects: c.defects?.length ? readDefects(c.defects) : null,
+    review: c.review ? { verdict: c.review.verdict, score: c.review.score, counts: c.review.counts } : null,
+    coverage: c.coverage ? { percent: c.coverage.percent, covered: c.coverage.covered, total: c.coverage.total } : null,
+    reports: {
+      testResults: fresh(resultsFile) ? `/files/${resultsFile}` : null,
+      releaseReadiness: fresh(releaseFile) ? `/files/${releaseFile}` : null,
+    },
+  };
 }
 
 function listOutputs(c) {
@@ -372,11 +486,11 @@ function listOutputs(c) {
 
 async function runPipeline(c) {
   emit({ type: 'log', level: 'info', text: c.mode === 'rerun'
-    ? `Same requirement: skipping stages 1–3 and running its ${c.tests.length} existing tests (${c.specs.join(', ')})`
+    ? `Same requirement: skipping stages 1–4 and running its ${c.tests.length} existing tests (${c.specs.join(', ')})`
     : `Starting full pipeline for ${c.requirement} (parent ${c.parentIssue})` });
 
   let blocked = null;
-  let stopped = null; // 'already-covered' when the user chose not to re-execute fully covered tests
+  let stopped = null; // why the user ended the run early: 'already-covered' or 'review-changes'
   for (const stage of STAGES) {
     const s = run.stages.find((x) => x.name === stage);
     if (s.state === 'skipped') continue;
@@ -399,15 +513,31 @@ async function runPipeline(c) {
         run.coverage = cov;
         emit({ type: 'coverage', coverage: cov });
         emit({ type: 'log', level: 'info', agent: stage, text: `Coverage: ${cov.covered}/${cov.total} scenarios (${cov.percent}%) already covered by existing tests; ${cov.new} new` });
-        if (cov.total && cov.covered === cov.total) {
-          const choice = await askDecision(`All ${cov.total} scenarios of ${c.base} are already covered by existing tests (100% coverage). No new test cases or scripts are needed. Re-execute the existing tests?`);
-          emit({ type: 'log', level: 'info', text: choice === 'rerun' ? 'Decision: re-execute the existing tests' : 'Decision: stop here, without re-executing' });
-          if (choice !== 'rerun') {
-            for (const x of run.stages) if (x.state === 'pending') x.state = 'skipped';
-            emit({ type: 'stages', stages: run.stages });
-            stopped = run.abort.signal.aborted ? 'cancelled' : 'already-covered';
-            break;
-          }
+      }
+      if (stage === 'test-review-agent' && c.review) {
+        const r = c.review;
+        run.review = r;
+        emit({ type: 'review', review: r });
+        emit({ type: 'log', level: 'info', agent: stage, text: `Review: ${r.verdict} (score ${r.score}): ${r.counts.critical} critical, ${r.counts.major} major, ${r.counts.minor} minor` });
+        const skipRest = (reason) => {
+          for (const x of run.stages) if (x.state === 'pending') x.state = 'skipped';
+          emit({ type: 'stages', stages: run.stages });
+          stopped = run.abort.signal.aborted ? 'cancelled' : reason;
+        };
+        if (r.verdict === 'Changes required') {
+          const choice = await askDecision(
+            `The test case review found problems: ${r.counts.critical} critical and ${r.counts.major} major findings (score ${r.score}). See the Test review stage or TestReview/${c.base}_TestReview.md. Continue to automation anyway?`,
+            { yes: 'Continue anyway', no: 'Stop and fix the test cases' });
+          emit({ type: 'log', level: 'info', text: choice === 'yes' ? 'Decision: continue despite review findings' : 'Decision: stop to fix the test cases' });
+          if (choice !== 'yes') { skipRest('review-changes'); break; }
+        }
+        const cov = c.coverage;
+        if (cov?.total && cov.covered === cov.total) {
+          const choice = await askDecision(
+            `All ${cov.total} scenarios of ${c.base} are already covered by existing tests (100% coverage). No new test cases or scripts are needed. Re-execute the existing tests?`,
+            { yes: 'Yes, re-execute the tests', no: 'No, stop here' });
+          emit({ type: 'log', level: 'info', text: choice === 'yes' ? 'Decision: re-execute the existing tests' : 'Decision: stop here, without re-executing' });
+          if (choice !== 'yes') { skipRest('already-covered'); break; }
           c.mappingOnly = true;
         }
       }
@@ -429,7 +559,8 @@ async function runPipeline(c) {
   }
   writePipelineReport(c);
   const release = run.stages.find((s) => s.name === 'release-agent');
-  emit({ type: 'done', status: run.status, blockedAt: blocked, stoppedReason: stopped, coverage: c.coverage || null, verdict: release.state === 'done' ? release.summary : null, outputs: listOutputs(c) });
+  run.summary = buildSummary(c);
+  emit({ type: 'done', status: run.status, blockedAt: blocked, stoppedReason: stopped, coverage: c.coverage || null, review: c.review || null, verdict: release.state === 'done' ? release.summary : null, summary: run.summary, outputs: listOutputs(c) });
 }
 
 // ---- HTTP ----
@@ -502,7 +633,7 @@ app.post('/api/run', async (req, res) => {
     file,
     mode,
     status: 'running',
-    stages: STAGES.map((name, i) => ({ name, state: mode === 'rerun' && i < 3 ? 'skipped' : 'pending' })),
+    stages: STAGES.map((name, i) => ({ name, state: mode === 'rerun' && i < STAGES.indexOf('automation-agent') + 1 ? 'skipped' : 'pending' })),
     events: [],
     startedAt: Date.now(),
     abort: new AbortController(),
@@ -518,7 +649,7 @@ app.post('/api/cancel', (_req, res) => {
 
 app.post('/api/decision', (req, res) => {
   if (run?.status !== 'awaiting' || !run.resolveDecision) return res.status(409).json({ error: 'No decision is pending' });
-  const choice = req.body.choice === 'rerun' ? 'rerun' : 'stop';
+  const choice = req.body.choice === 'yes' ? 'yes' : 'no';
   run.resolveDecision(choice);
   res.json({ ok: true, choice });
 });
@@ -529,7 +660,7 @@ app.get('/api/state', (req, res) => {
   res.set('Cache-Control', 'no-store');
   if (!run) return res.json({ idle: true });
   const since = Math.max(0, parseInt(req.query.since, 10) || 0);
-  res.json({ id: run.id, file: run.file, mode: run.mode, status: run.status, stages: run.stages, decision: run.decision || null, coverage: run.coverage || null, events: run.events.slice(since), next: run.events.length });
+  res.json({ id: run.id, file: run.file, mode: run.mode, status: run.status, stages: run.stages, decision: run.decision || null, coverage: run.coverage || null, review: run.review || null, events: run.events.slice(since), next: run.events.length });
 });
 
 app.listen(PORT, () => {

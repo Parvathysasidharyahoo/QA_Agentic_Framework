@@ -42,6 +42,22 @@ Produce one self-contained HTML report (inline CSS, no external assets) per requ
 4. Key Risks list as described above.
 5. A footer linking (by relative path) to the source `TestResults` and `FailureAnalysis` files this report was built from, so it's traceable back to raw evidence.
 
+Alongside the HTML, write `ReleaseReadiness/<basename>_ReleaseReadiness.json` with the same call in machine-readable form. The QA Agent UI's report summary is built from it. Use exactly this shape:
+```json
+{
+  "requirement": "JIRA-193",
+  "recommendation": "Go with conditions",
+  "riskLevel": "Low",
+  "qualityScore": 92,
+  "passRate": 97.4,
+  "businessCriticalDefects": 0,
+  "summary": "Two or three plain sentences a manager can read: what was tested, the outcome, and why this call.",
+  "keyRisks": [ { "id": "SCN-12", "severity": "High", "description": "One line" } ],
+  "conditions": [ "One line per condition attached to a Go with conditions call" ]
+}
+```
+`recommendation` is exactly `Go`, `Go with conditions` or `No-Go`. `riskLevel` is exactly `Trivial`, `Low`, `Medium` or `High`. The numbers must match the HTML report. `keyRisks` and `conditions` may be empty arrays.
+
 Also end your chat response with exactly two lines in this literal form so the call is scannable without opening the file:
 ```
 Risk Level: <Trivial|Low|Medium|High>

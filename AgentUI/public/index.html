@@ -4,141 +4,284 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>QA Agent Pipeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f6f7f9; --panel: #fff; --text: #1d2330; --muted: #677085; --border: #e3e6ec;
-    --accent: #3b5bdb; --accent-hover: #324fc4; --ok: #2f9e44; --warn: #e8a317; --err: #e03131; --idle: #adb5bd;
-    --reused: #74b816; --info-bg: #edf2ff; --warn-bg: #fff4e6;
-    --log-bg: #0f1420; --log-text: #d6dbe6;
+    --bg: #f4f6fa; --surface: #ffffff; --surface-2: #f8fafc; --text: #0f172a; --text-2: #334155; --muted: #64748b;
+    --border: #e2e8f0; --border-strong: #cbd5e1;
+    --accent: #4f46e5; --accent-hover: #4338ca; --btn: #4f46e5; --btn-hover: #4338ca; --accent-soft: #eef2ff; --accent-text: #3730a3;
+    --ok: #16a34a; --ok-soft: #ecfdf3; --ok-text: #166534;
+    --warn: #d97706; --warn-soft: #fffbeb; --warn-text: #92400e;
+    --err: #dc2626; --err-soft: #fef2f2; --err-text: #991b1b;
+    --idle: #cbd5e1; --reused: #0d9488;
+    --log-bg: #0b1020; --log-text: #cbd5e1;
+    --shadow: 0 1px 2px rgba(15, 23, 42, .04), 0 4px 16px rgba(15, 23, 42, .06);
+    --radius: 14px;
   }
   @media (prefers-color-scheme: dark) {
-    :root { --bg: #11141b; --panel: #191d27; --text: #e6e9ef; --muted: #8e97aa; --border: #2a3040; --idle: #4a5162; --info-bg: #1e2540; --warn-bg: #3a2c14; }
+    :root {
+      --bg: #0b0f19; --surface: #121826; --surface-2: #0f1522; --text: #e5e9f2; --text-2: #c3cad8; --muted: #8b95a8;
+      --border: #222b3d; --border-strong: #2f3a52;
+      --accent: #818cf8; --accent-hover: #a5b4fc; --btn: #5b55e6; --btn-hover: #6d67f0; --accent-soft: #1d2142; --accent-text: #c7d2fe;
+      --ok: #22c55e; --ok-soft: #0f2a1c; --ok-text: #86efac;
+      --warn: #f59e0b; --warn-soft: #2d2210; --warn-text: #fcd34d;
+      --err: #f87171; --err-soft: #2d1416; --err-text: #fca5a5;
+      --idle: #334155; --reused: #2dd4bf;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 16px rgba(0, 0, 0, .25);
+    }
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
-  main { max-width: 980px; margin: 0 auto; padding: 32px 16px 64px; }
-  h1 { font-size: 22px; margin: 0 0 4px; }
-  .sub { color: var(--muted); margin: 0 0 24px; }
-  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--text); font: 14.5px/1.55 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+  code, .mono { font-family: "JetBrains Mono", ui-monospace, Consolas, monospace; font-size: .86em; }
+  a { color: var(--accent); }
+
+  /* App bar */
+  .appbar { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--surface) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
+  .appbar-inner { max-width: 1120px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; gap: 14px; }
+  .brand-mark { width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; background: linear-gradient(135deg, var(--accent), #7c3aed); color: #fff; flex: none; }
+  .brand-title { font-weight: 700; font-size: 16px; letter-spacing: -.01em; }
+  .brand-sub { color: var(--muted); font-size: 12.5px; }
+  .appbar .spacer { flex: 1; }
+
+  main { max-width: 1120px; margin: 0 auto; padding: 28px 24px 72px; display: grid; gap: 20px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+  .card-head { display: flex; align-items: center; gap: 12px; padding: 18px 22px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .card-body { padding: 22px; }
+  .step-no { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 12.5px; font-weight: 700; background: var(--accent-soft); color: var(--accent-text); flex: none; }
+  .card-title { font-weight: 650; font-size: 15.5px; letter-spacing: -.01em; }
+  .card-hint { color: var(--muted); font-size: 13px; }
+  .card-head .spacer { flex: 1; }
+
   .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-  label { font-size: 13px; color: var(--muted); }
-  select { padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); font: inherit; max-width: 100%; }
-  .choice { display: grid; gap: 6px; margin-top: 10px; }
-  .choice label { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; color: var(--text); cursor: pointer; }
-  .choice input { margin-top: 4px; }
-  .choice small { display: block; color: var(--muted); }
-  input[type=text] { padding: 9px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); font: inherit; width: 140px; }
-  button { font: inherit; border-radius: 6px; padding: 10px 18px; cursor: pointer; border: 1px solid var(--border); background: var(--panel); color: var(--text); }
-  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; min-width: 240px; }
-  button.primary:hover:not(:disabled) { background: var(--accent-hover); }
+  .field { display: grid; gap: 6px; }
+  .field-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .form-grid { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 18px; }
+  .form-grid > #existingRow { flex: 1 1 340px; }
+  .form-grid > .field:last-child { flex: 0 0 220px; }
+  @media (max-width: 720px) { .form-grid > .field { flex: 1 1 100% !important; } }
+  select, input[type=text] { height: 40px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 9px; background: var(--surface); color: var(--text); font: inherit; width: 100%; }
+  select:focus, input[type=text]:focus { outline: 2px solid color-mix(in srgb, var(--accent) 35%, transparent); outline-offset: 1px; border-color: var(--accent); }
+
+  button { font: inherit; font-weight: 550; border-radius: 9px; height: 40px; padding: 0 16px; cursor: pointer; border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); transition: background .15s, border-color .15s, box-shadow .15s; }
+  button:hover:not(:disabled) { background: var(--surface-2); }
+  button.primary { background: var(--btn); border-color: var(--btn); color: #fff; min-width: 230px; height: 44px; font-weight: 600; box-shadow: 0 1px 2px rgba(79, 70, 229, .25); }
+  button.primary:hover:not(:disabled) { background: var(--btn-hover); border-color: var(--btn-hover); }
+  button.danger { color: var(--err); border-color: color-mix(in srgb, var(--err) 40%, var(--border)); }
   button:disabled { opacity: .55; cursor: not-allowed; }
-  .link { background: none; border: none; color: var(--accent); padding: 0; text-decoration: underline; }
-  .file-chip { font-size: 14px; color: var(--muted); }
-  .file-chip b { color: var(--text); }
-  .msg { margin-top: 12px; font-size: 14px; }
+  .link { background: none; border: none; height: auto; padding: 0; color: var(--accent); font-weight: 500; text-decoration: underline; text-underline-offset: 3px; }
+  .link:hover:not(:disabled) { background: none; }
+  .file-chip { font-size: 13.5px; color: var(--muted); display: inline-flex; align-items: center; gap: 8px; }
+  .file-chip b { color: var(--text); font-weight: 600; }
+  .msg { margin-top: 12px; font-size: 13.5px; color: var(--muted); }
   .msg.err { color: var(--err); }
-  .notice { margin-top: 16px; padding: 12px 14px; border-radius: 8px; font-size: 14px; background: var(--info-bg); }
-  .notice.warn { background: var(--warn-bg); }
-  .notice ul { margin: 6px 0 8px; padding-left: 20px; }
-  .notice code { font-size: 13px; }
-  .check { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--text); }
 
-  .stages { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
-  .stage { text-align: center; font-size: 12px; color: var(--muted); cursor: pointer; border-radius: 8px; padding: 6px 2px; }
-  .stage:hover, .stage.selected { background: var(--bg); }
-  .dot { width: 30px; height: 30px; border-radius: 50%; margin: 0 auto 6px; display: grid; place-items: center; font-weight: 700; font-size: 13px; color: #fff; background: var(--idle); }
-  .stage.running .dot { background: var(--accent); animation: pulse 1.2s infinite; }
-  .stage.done .dot { background: var(--ok); }
-  .stage.skipped .dot { background: var(--reused); }
-  .stage.failed .dot { background: var(--err); }
+  .pill { display: inline-flex; align-items: center; gap: 7px; height: 26px; padding: 0 11px; border-radius: 999px; font-size: 12.5px; font-weight: 600; background: var(--surface-2); border: 1px solid var(--border); color: var(--muted); }
+  .pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .pill.running { color: var(--accent); background: var(--accent-soft); border-color: transparent; }
+  .pill.running::before { animation: blink 1.2s infinite; }
+  .pill.awaiting { color: var(--warn-text); background: var(--warn-soft); border-color: transparent; }
+  .pill.completed { color: var(--ok-text); background: var(--ok-soft); border-color: transparent; }
+  .pill.failed, .pill.cancelled { color: var(--err-text); background: var(--err-soft); border-color: transparent; }
+  @keyframes blink { 50% { opacity: .35; } }
+  .tag { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 6px; font-size: 11.5px; font-weight: 600; color: var(--text-2); background: var(--surface-2); border: 1px solid var(--border); vertical-align: middle; }
+  .sev-Critical { color: var(--err-text); background: var(--err-soft); border-color: transparent; }
+  .sev-Major { color: var(--warn-text); background: var(--warn-soft); border-color: transparent; }
+
+  .notice { margin-top: 18px; padding: 14px 16px; border-radius: 11px; font-size: 13.5px; background: var(--accent-soft); color: var(--text-2); border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent); }
+  .notice b { color: var(--text); }
+  .notice.warn { background: var(--warn-soft); border-color: color-mix(in srgb, var(--warn) 25%, transparent); }
+  .notice ul { margin: 8px 0 4px; padding-left: 20px; }
+  .notice li { margin: 3px 0; }
+  .notice small { color: var(--muted); }
+  details > summary { cursor: pointer; font-weight: 550; color: var(--text-2); }
+  .choice { display: grid; gap: 8px; margin-top: 12px; }
+  .choice label { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); cursor: pointer; color: var(--text); }
+  .choice label:has(input:checked) { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .choice input { margin-top: 4px; accent-color: var(--accent); }
+  .choice small { display: block; color: var(--muted); margin-top: 2px; }
+  .meter { height: 6px; border-radius: 999px; background: color-mix(in srgb, var(--border-strong) 70%, transparent); overflow: hidden; margin: 10px 0; }
+  .meter > span { display: block; height: 100%; background: var(--ok); border-radius: 999px; }
+
+  /* Stepper */
+  .stages { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(8, 1fr); }
+  .stage { position: relative; text-align: center; font-size: 12.5px; font-weight: 550; color: var(--muted); cursor: pointer; padding: 4px 4px 8px; border-radius: 10px; }
+  .stage::before { content: ""; position: absolute; top: 19px; left: calc(-50% + 20px); right: calc(50% + 20px); height: 2px; background: var(--border); }
+  .stage:first-child::before { display: none; }
+  .stage.done::before, .stage.skipped::before, .stage.running::before, .stage.failed::before { background: color-mix(in srgb, var(--ok) 55%, var(--border)); }
+  .stage:hover, .stage.selected { background: var(--surface-2); }
+  .dot { position: relative; width: 32px; height: 32px; border-radius: 50%; margin: 0 auto 8px; display: grid; place-items: center; font-weight: 700; font-size: 12.5px; color: var(--muted); background: var(--surface); border: 2px solid var(--idle); }
+  .stage.running .dot { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+  .stage.running .dot::after { content: ""; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid transparent; border-top-color: var(--accent); animation: spin .9s linear infinite; }
+  .stage.done .dot { background: var(--ok); border-color: var(--ok); color: #fff; }
+  .stage.skipped .dot { background: var(--surface); border-color: var(--reused); color: var(--reused); }
+  .stage.failed .dot { background: var(--err); border-color: var(--err); color: #fff; }
   .stage.running, .stage.done, .stage.skipped, .stage.failed { color: var(--text); }
-  .stage .state { display: block; font-size: 11px; color: var(--muted); }
-  @keyframes pulse { 50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 25%, transparent); } }
-  @media (max-width: 640px) { .stages { grid-template-columns: repeat(4, 1fr); } }
-  .detail { margin-top: 12px; padding: 12px; border-radius: 8px; background: var(--bg); font-size: 13.5px; white-space: pre-wrap; max-height: 260px; overflow: auto; }
+  .stage .state { display: block; font-size: 11.5px; font-weight: 500; color: var(--muted); margin-top: 1px; }
+  .stage.failed .state { color: var(--err); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (max-width: 760px) { .stages { grid-template-columns: repeat(4, 1fr); row-gap: 12px; } .stage:nth-child(4n + 1)::before { display: none; } }
+  .detail { margin-top: 16px; padding: 14px 16px; border-radius: 11px; background: var(--surface-2); border: 1px solid var(--border); font-size: 13.5px; white-space: pre-wrap; max-height: 280px; overflow: auto; color: var(--text-2); }
+  .detail b { color: var(--text); }
   .detail .err { color: var(--err); font-weight: 600; }
+  .panels { display: grid; gap: 12px; margin-bottom: 20px; }
+  .panels:empty { display: none; }
+  .panels .notice { margin-top: 0; }
 
-  .status { font-weight: 600; }
-  .log { background: var(--log-bg); color: var(--log-text); border-radius: 8px; padding: 12px; height: 320px; overflow: auto; font: 12.5px/1.5 ui-monospace, Consolas, monospace; white-space: pre-wrap; word-break: break-word; }
-  .log .agent { color: #74c0fc; }
-  .log .tool { color: #a9b1c2; }
-  .log .error { color: #ff8787; }
-  .log .info { color: #8ce99a; }
+  .activity { margin-top: 18px; border: 1px solid var(--border); border-radius: 11px; overflow: hidden; }
+  .activity > summary { list-style: none; padding: 11px 14px; background: var(--surface-2); display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .activity > summary::-webkit-details-marker { display: none; }
+  .activity > summary::before { content: "▸"; color: var(--muted); transition: transform .15s; }
+  .activity[open] > summary::before { transform: rotate(90deg); }
+  .log { background: var(--log-bg); color: var(--log-text); padding: 12px 14px; height: 300px; overflow: auto; font: 12.5px/1.6 "JetBrains Mono", ui-monospace, Consolas, monospace; white-space: pre-wrap; word-break: break-word; }
+  .log .agent { color: #93c5fd; }
+  .log .tool { color: #7c8aa5; }
+  .log .error { color: #fca5a5; }
+  .log .info { color: #86efac; }
 
-  .verdict { padding: 14px; border-radius: 8px; margin-bottom: 14px; white-space: pre-wrap; font-size: 14px; border-left: 4px solid var(--accent); background: var(--bg); }
-  .verdict.go { border-color: var(--ok); }
-  .verdict.cond { border-color: var(--warn); }
-  .verdict.nogo, .verdict.blocked { border-color: var(--err); }
-  .results a { display: flex; justify-content: space-between; gap: 8px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; margin-bottom: 6px; color: var(--accent); text-decoration: none; }
-  .results a:hover { background: var(--bg); }
-  .results .folder { color: var(--muted); font-size: 12px; margin-right: 8px; }
-  .results .featured { border-color: var(--accent); font-weight: 600; }
-  .tag { font-size: 11px; color: var(--muted); border: 1px solid var(--border); border-radius: 10px; padding: 0 8px; align-self: center; }
-  .meter { height: 8px; border-radius: 4px; background: var(--border); overflow: hidden; margin: 8px 0; }
-  .meter > span { display: block; height: 100%; background: var(--ok); }
+  /* Report */
+  .verdict { padding: 14px 16px; border-radius: 11px; white-space: pre-wrap; font-size: 13.5px; border: 1px solid var(--border); border-left: 4px solid var(--accent); background: var(--surface-2); color: var(--text-2); margin-bottom: 18px; }
+  .verdict.go { border-left-color: var(--ok); }
+  .verdict.cond { border-left-color: var(--warn); }
+  .verdict.nogo, .verdict.blocked { border-left-color: var(--err); }
+  .hero { display: flex; align-items: center; gap: 18px; padding: 18px 20px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface-2); flex-wrap: wrap; }
+  .hero.go { background: var(--ok-soft); border-color: color-mix(in srgb, var(--ok) 25%, transparent); }
+  .hero.cond { background: var(--warn-soft); border-color: color-mix(in srgb, var(--warn) 25%, transparent); }
+  .hero.nogo { background: var(--err-soft); border-color: color-mix(in srgb, var(--err) 25%, transparent); }
+  .hero-icon { width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center; color: #fff; background: var(--muted); flex: none; font-size: 22px; font-weight: 700; }
+  .hero.go .hero-icon { background: var(--ok); }
+  .hero.cond .hero-icon { background: var(--warn); }
+  .hero.nogo .hero-icon { background: var(--err); }
+  .hero-kicker { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  .hero-title { font-size: 21px; font-weight: 700; letter-spacing: -.015em; line-height: 1.2; }
+  .hero-meta { display: flex; gap: 22px; margin-left: auto; flex-wrap: wrap; }
+  .hero-meta div { text-align: right; }
+  .hero-meta .k { font-size: 11.5px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+  .hero-meta .v { font-size: 18px; font-weight: 700; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 16px; }
+  .kpi { padding: 14px 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+  .kpi .k { font-size: 12px; color: var(--muted); font-weight: 600; }
+  .kpi .v { font-size: 24px; font-weight: 700; letter-spacing: -.02em; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .kpi .s { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .kpi.good .v { color: var(--ok); }
+  .kpi.bad .v { color: var(--err); }
+  .kpi.warnv .v { color: var(--warn); }
+  .narrative { margin-top: 18px; color: var(--text-2); font-size: 14px; }
+  .narrative h4 { margin: 16px 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  .narrative ul { margin: 0; padding-left: 20px; }
+  .narrative li { margin: 4px 0; }
+  .reports { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-top: 20px; }
+  .report-link { display: flex; align-items: center; gap: 14px; padding: 16px 18px; border: 1px solid var(--border); border-radius: 12px; text-decoration: none; color: var(--text); background: var(--surface); transition: border-color .15s, box-shadow .15s, transform .15s; }
+  .report-link:hover { border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-1px); }
+  .report-link .ico { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); flex: none; }
+  .report-link .t { font-weight: 650; }
+  .report-link .d { font-size: 12.5px; color: var(--muted); }
+  .report-link .arrow { margin-left: auto; color: var(--muted); }
+  .report-link.missing { opacity: .55; pointer-events: none; }
+  .section-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 22px 0 0; }
   .hidden { display: none !important; }
 </style>
 </head>
 <body>
+<header class="appbar">
+  <div class="appbar-inner">
+    <div class="brand-mark" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.7-7 9-4-1.3-7-4.5-7-9V6l7-3z"/><path d="M8.5 12.2l2.3 2.3 4.7-4.8"/></svg>
+    </div>
+    <div>
+      <div class="brand-title">QA Agent Pipeline</div>
+      <div class="brand-sub">Requirement to release readiness, run by AI agents</div>
+    </div>
+    <div class="spacer"></div>
+    <span id="status" class="pill hidden"></span>
+  </div>
+</header>
+
 <main>
-  <h1>QA Agent Pipeline</h1>
-  <p class="sub">Upload a requirement and run the agents: requirement → test design → automation → execution → failure analysis → defect triage → release readiness. Re-uploading an unchanged requirement reruns its existing test scripts.</p>
-
-  <section class="panel">
-    <div class="row">
-      <button id="mainBtn" class="primary">Select requirement file</button>
-      <input id="fileInput" type="file" accept=".txt,.md,.csv,.json" hidden>
-      <span id="fileChip" class="file-chip"></span>
-      <button id="changeBtn" class="link hidden">Choose a different file</button>
+  <section class="card">
+    <div class="card-head">
+      <span class="step-no">1</span>
+      <span class="card-title">Requirement</span>
+      <span class="card-hint">Upload a requirement file, or pick one that's already here</span>
     </div>
-    <div id="existingRow" class="row hidden" style="margin-top:12px">
-      <label for="existing">or pick a requirement that's already here</label>
-      <select id="existing"></select>
-    </div>
-    <div id="detect" class="notice hidden"></div>
-    <div class="row" style="margin-top:16px">
-      <label for="parent">Parent Jira issue for defects</label>
-      <input id="parent" type="text" value="SCRUM-1">
-      <button id="cancelBtn" class="hidden">Cancel run</button>
-    </div>
-    <div id="msg" class="msg"></div>
-  </section>
-
-  <section id="progress" class="panel hidden">
-    <div class="row" style="justify-content:space-between;margin-bottom:16px">
-      <strong>Pipeline progress <span id="modeLabel" class="tag"></span></strong>
-      <span id="status" class="status"></span>
-    </div>
-    <div id="coverage" class="notice hidden" style="margin:0 0 16px"></div>
-    <div id="decision" class="notice warn hidden" style="margin:0 0 16px">
-      <div id="decisionText"></div>
-      <div class="row" style="margin-top:12px">
-        <button id="decideRerun" class="primary" style="min-width:0">Yes, re-execute the tests</button>
-        <button id="decideStop">No, stop here</button>
+    <div class="card-body">
+      <div class="row">
+        <button id="mainBtn" class="primary">Select requirement file</button>
+        <input id="fileInput" type="file" accept=".txt,.md,.csv,.json" hidden>
+        <span id="fileChip" class="file-chip"></span>
+        <button id="changeBtn" class="link hidden">Choose a different file</button>
       </div>
+      <div class="form-grid">
+        <div id="existingRow" class="field hidden">
+          <label class="field-label" for="existing">Existing requirement</label>
+          <select id="existing"></select>
+        </div>
+        <div class="field">
+          <label class="field-label" for="parent">Parent Jira issue</label>
+          <input id="parent" type="text" value="SCRUM-1">
+        </div>
+      </div>
+      <div id="detect" class="notice hidden"></div>
+      <div id="msg" class="msg"></div>
     </div>
-    <ol id="stages" class="stages"></ol>
-    <div id="detail" class="detail hidden"></div>
-    <div style="margin-top:16px" id="log" class="log"></div>
   </section>
 
-  <section id="results" class="panel results hidden">
-    <strong style="display:block;margin-bottom:12px">Reports</strong>
-    <div id="verdict" class="verdict hidden"></div>
-    <div id="links"></div>
+  <section id="progress" class="card hidden">
+    <div class="card-head">
+      <span class="step-no">2</span>
+      <span class="card-title">Pipeline</span>
+      <span id="modeLabel" class="tag"></span>
+      <div class="spacer"></div>
+      <button id="cancelBtn" class="danger hidden">Cancel run</button>
+    </div>
+    <div class="card-body">
+      <div class="panels">
+        <div id="decision" class="notice warn hidden">
+          <div id="decisionText"></div>
+          <div class="row" style="margin-top:12px">
+            <button id="decideYes" class="primary" style="min-width:0">Yes</button>
+            <button id="decideNo">No, stop here</button>
+          </div>
+        </div>
+        <div id="coverage" class="notice hidden"></div>
+        <div id="review" class="notice hidden"></div>
+      </div>
+      <ol id="stages" class="stages"></ol>
+      <div id="detail" class="detail hidden"></div>
+      <details class="activity">
+        <summary>Activity log <span id="logCount" class="tag">0</span></summary>
+        <div id="log" class="log"></div>
+      </details>
+    </div>
+  </section>
+
+  <section id="results" class="card hidden">
+    <div class="card-head">
+      <span class="step-no">3</span>
+      <span class="card-title">Report</span>
+      <span id="reportFor" class="card-hint"></span>
+    </div>
+    <div class="card-body">
+      <div id="verdict" class="verdict hidden"></div>
+      <div id="summary"></div>
+      <div class="section-label">Reports</div>
+      <div id="links" class="reports"></div>
+    </div>
   </section>
 </main>
 
 <script>
 const $ = (id) => document.getElementById(id);
 const LABELS = {
-  'requirement-agent': 'Requirement', 'test-design-agent': 'Test design', 'automation-agent': 'Automation',
+  'requirement-agent': 'Requirement', 'test-design-agent': 'Test design', 'test-review-agent': 'Test review', 'automation-agent': 'Automation',
   'execution-agent': 'Execution', 'failure-analysis-agent': 'Failure analysis', 'defect-triage-agent': 'Defect triage',
   'release-agent': 'Release readiness',
 };
-const STATE_TEXT = { pending: 'Waiting', running: 'Running…', done: 'Done', skipped: 'Reused', failed: 'Blocked' };
+const STATE_TEXT = { pending: 'Waiting', running: 'Running…', done: 'Done', skipped: 'Skipped', failed: 'Blocked' };
 let uploaded = null;   // upload response, incl. rerun detection
-let mode = 'select';   // select | ready | running | done
+let mode = 'select';   // select | ready | running | awaiting | done
 let stages = [];
 let selected = null;
 
@@ -182,18 +325,23 @@ $('existing').onchange = () => {
   const q = requirements.find((x) => x.file === $('existing').value);
   if (!q) return;
   uploaded = q;
-  $('fileChip').innerHTML = `Requirement: <b>${esc(q.path)}</b>`;
+  $('fileChip').innerHTML = `${fileIcon()} <b>${esc(q.path)}</b>`;
   renderDetection(q);
   showMsg('');
   setMode('ready');
 };
 
 function showMsg(text, isErr) { $('msg').textContent = text || ''; $('msg').className = 'msg' + (isErr ? ' err' : ''); }
+const fileIcon = () => '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>';
 
 $('mainBtn').onclick = () => {
   if (mode === 'select') $('fileInput').click();
   else if (mode === 'ready') startRun();
-  else if (mode === 'done') { uploaded = null; $('existing').value = ''; $('fileChip').textContent = ''; $('results').classList.add('hidden'); $('progress').classList.add('hidden'); showMsg(''); setMode('select'); }
+  else if (mode === 'done') {
+    uploaded = null; $('existing').value = ''; $('fileChip').textContent = '';
+    $('results').classList.add('hidden'); $('progress').classList.add('hidden'); $('status').classList.add('hidden');
+    showMsg(''); setMode('select');
+  }
 };
 $('changeBtn').onclick = () => $('fileInput').click();
 $('cancelBtn').onclick = () => fetch('/api/cancel', { method: 'POST' });
@@ -210,7 +358,7 @@ $('fileInput').onchange = async (e) => {
     const j = await r.json();
     if (!r.ok) throw new Error(j.error);
     uploaded = j;
-    $('fileChip').innerHTML = `Uploaded to <b>${esc(j.path)}</b>`;
+    $('fileChip').innerHTML = `${fileIcon()} <b>${esc(j.path)}</b>`;
     renderDetection(j);
     showMsg('');
     setMode('ready');
@@ -232,16 +380,16 @@ function renderDetection(j) {
       </details>
       <div class="choice">
         <label><input type="radio" name="runMode" value="rerun" ${j.contentChanged ? '' : 'checked'}>
-          <span>Just run the existing tests<small>Skips test cases, test design and automation. Runs only these ${j.tests.length} tests, then failure analysis, defect triage and release readiness.</small></span></label>
+          <span>Just run the existing tests<small>Skips test cases, test design, review and automation. Runs only these ${j.tests.length} tests, then failure analysis, defect triage and release readiness.</small></span></label>
         <label><input type="radio" name="runMode" value="full" ${j.contentChanged ? 'checked' : ''}>
-          <span>Regenerate test cases &amp; scripts, then run<small>Full seven-stage pipeline. Existing specs are extended rather than duplicated.</small></span></label>
+          <span>Regenerate test cases &amp; scripts, then run<small>Full eight-stage pipeline. Existing specs are extended rather than duplicated.</small></span></label>
       </div>`;
   } else if (j.contentChanged) {
     d.className = 'notice warn';
     d.innerHTML = `<b>${esc(j.base)} was uploaded before, but its content has changed.</b> The full pipeline will run so test cases and scripts match the new requirement.`;
   } else {
     d.className = 'notice';
-    d.innerHTML = `<b>${j.previouslyUploaded ? 'No tests exist yet for this requirement.' : 'New requirement.'}</b> The full seven-stage pipeline will run.`;
+    d.innerHTML = `<b>${j.previouslyUploaded ? 'No tests exist yet for this requirement.' : 'New requirement.'}</b> The full eight-stage pipeline will run.`;
   }
 }
 
@@ -284,6 +432,7 @@ async function tick() {
     poll.since = s.next;
     if (!s.idle) {
       renderCoverage(s.coverage);
+      renderReview(s.review);
       renderDecision(s.status === 'awaiting' ? s.decision : null);
       if (s.status === 'awaiting' || s.status === 'running') { setStatus(s.status); setMode(s.status); }
     }
@@ -296,11 +445,14 @@ function handle(e) {
     case 'idle': return;
     case 'hello':
       $('log').innerHTML = '';
-      $('fileChip').innerHTML = `Requirement: <b>Requirement/${esc(e.file)}</b>`;
+      $('logCount').textContent = '0';
+      $('fileChip').innerHTML = `${fileIcon()} <b>Requirement/${esc(e.file)}</b>`;
       $('modeLabel').textContent = e.mode === 'rerun' ? 'Rerun of existing tests' : 'Full pipeline';
       runMode = e.mode;
-      stoppedCovered = false;
+      currentFile = e.file;
+      stopReason = null;
       renderCoverage(null);
+      renderReview(null);
       renderDecision(null);
       $('progress').classList.remove('hidden');
       renderStages(e.stages);
@@ -310,7 +462,8 @@ function handle(e) {
     case 'stages': return renderStages(e.stages);
     case 'log': return appendLog(e);
     case 'done':
-      stoppedCovered = e.stoppedReason === 'already-covered';
+      stopReason = e.stoppedReason || null;
+      if (e.review) renderReview(e.review);
       renderDecision(null);
       if (e.coverage) renderCoverage(e.coverage);
       setStatus(e.status);
@@ -323,7 +476,20 @@ function handle(e) {
 }
 
 let runMode = 'full';
-let stoppedCovered = false;
+let stopReason = null;
+let currentFile = '';
+
+function renderReview(r) {
+  const box = $('review');
+  if (!r) return box.classList.add('hidden');
+  box.classList.remove('hidden');
+  box.className = 'notice' + (r.verdict === 'Changes required' ? ' warn' : '');
+  const order = { Critical: 0, Major: 1, Minor: 2 };
+  const findings = [...r.findings].sort((a, b) => order[a.severity] - order[b.severity]);
+  box.innerHTML = `<b>Test case review: ${esc(r.verdict)}</b> &middot; score ${r.score}/100 &middot; ${r.counts.critical} critical, ${r.counts.major} major, ${r.counts.minor} minor
+    <small style="display:block">Reviewed independently by test-review-agent on a different model from the agents that wrote the tests.</small>
+    ${findings.length ? `<details style="margin-top:8px"><summary>${findings.length} finding${findings.length === 1 ? '' : 's'}</summary><ul>${findings.map((f) => `<li><span class="tag sev-${esc(f.severity)}">${esc(f.severity)}</span> ${f.ids.map((i) => `<code>${esc(i)}</code>`).join(' ')} ${esc(f.issue)}<br><small>Fix: ${esc(f.recommendation)}</small></li>`).join('')}</ul></details>` : ''}`;
+}
 
 function renderCoverage(cov) {
   const box = $('coverage');
@@ -336,40 +502,43 @@ function renderCoverage(cov) {
   box.innerHTML = `<b>Existing coverage: ${cov.covered} of ${cov.total} scenarios (${cov.percent}%) are already covered by existing tests.</b>
     <div class="meter"><span style="width:${cov.percent}%"></span></div>
     ${cov.covered === cov.total ? 'No new test cases or scripts are needed.' : `Only the ${cov.new} new scenario${cov.new === 1 ? '' : 's'} will get new test scripts; covered ones are linked to their existing tests.`}
-    ${covered.length ? `<details style="margin-top:6px"><summary>${covered.length} already covered</summary><ul>${covered.map((x) => `<li><code>${esc(x.id)}</code> ${esc(x.name || '')}${where(x)}<br><small>${esc(x.coveredBy?.title || '')}</small></li>`).join('')}</ul></details>` : ''}
-    ${fresh.length ? `<details style="margin-top:6px"><summary>${fresh.length} new</summary><ul>${fresh.map((x) => `<li><code>${esc(x.id)}</code> ${esc(x.name || '')}</li>`).join('')}</ul></details>` : ''}`;
+    ${covered.length ? `<details style="margin-top:8px"><summary>${covered.length} already covered</summary><ul>${covered.map((x) => `<li><code>${esc(x.id)}</code> ${esc(x.name || '')}${where(x)}<br><small>${esc(x.coveredBy?.title || '')}</small></li>`).join('')}</ul></details>` : ''}
+    ${fresh.length ? `<details style="margin-top:8px"><summary>${fresh.length} new</summary><ul>${fresh.map((x) => `<li><code>${esc(x.id)}</code> ${esc(x.name || '')}</li>`).join('')}</ul></details>` : ''}`;
 }
 
 function renderDecision(d) {
   const box = $('decision');
   if (!d) return box.classList.add('hidden');
   $('decisionText').innerHTML = `<b>${esc(d.question)}</b>`;
+  $('decideYes').textContent = d.labels?.yes || 'Yes';
+  $('decideNo').textContent = d.labels?.no || 'No, stop here';
   box.classList.remove('hidden');
 }
 
 async function decide(choice) {
-  $('decideRerun').disabled = $('decideStop').disabled = true;
+  $('decideYes').disabled = $('decideNo').disabled = true;
   try {
     const r = await fetch('/api/decision', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ choice }) });
     if (!r.ok) showMsg((await r.json()).error, true);
   } finally {
-    $('decideRerun').disabled = $('decideStop').disabled = false;
+    $('decideYes').disabled = $('decideNo').disabled = false;
   }
 }
-$('decideRerun').onclick = () => decide('rerun');
-$('decideStop').onclick = () => decide('stop');
+$('decideYes').onclick = () => decide('yes');
+$('decideNo').onclick = () => decide('no');
 
 function setStatus(s) {
   const el = $('status');
-  el.textContent = { running: 'Running', awaiting: 'Waiting for your decision', completed: 'Completed', failed: 'Blocked — see stage details', cancelled: 'Cancelled' }[s] || s;
-  el.style.color = s === 'completed' ? 'var(--ok)' : s === 'running' ? 'var(--accent)' : s === 'awaiting' ? 'var(--warn)' : 'var(--err)';
+  el.classList.remove('hidden');
+  el.className = `pill ${s}`;
+  el.textContent = { running: 'Running', awaiting: 'Waiting for your decision', completed: 'Completed', failed: 'Blocked', cancelled: 'Cancelled' }[s] || s;
 }
 
 function renderStages(list) {
   stages = list;
   $('stages').innerHTML = list.map((s, i) => {
-    const icon = s.state === 'done' ? '✓' : s.state === 'skipped' ? '↺' : s.state === 'failed' ? '!' : i + 1;
-    return `<li class="stage ${s.state}${selected === s.name ? ' selected' : ''}" data-name="${s.name}"><div class="dot">${icon}</div>${LABELS[s.name]}<span class="state">${STATE_TEXT[s.state]}</span></li>`;
+    const icon = s.state === 'done' ? '✓' : s.state === 'skipped' ? '↷' : s.state === 'failed' ? '!' : i + 1;
+    return `<li class="stage ${s.state}${selected === s.name ? ' selected' : ''}" data-name="${s.name}" title="Show ${LABELS[s.name]} details"><div class="dot">${icon}</div>${LABELS[s.name]}<span class="state">${STATE_TEXT[s.state]}</span></li>`;
   }).join('');
   for (const li of $('stages').children) li.onclick = () => { selected = selected === li.dataset.name ? null : li.dataset.name; renderStages(stages); };
   // Auto-show the blocking stage's reason.
@@ -384,11 +553,13 @@ function renderDetail() {
   if (!s) return d.classList.add('hidden');
   d.classList.remove('hidden');
   const idx = stages.indexOf(s);
-  const skippedWhy = runMode === 'rerun' && idx < 3
-    ? 'Skipped: the requirement is unchanged, so the existing test cases, design and scripts were reused.'
-    : 'Not run: every scenario is already covered by existing tests, and you chose not to re-execute them.';
+  const skippedWhy = runMode === 'rerun' && idx < 4
+    ? 'Skipped: the requirement is unchanged, so the existing test cases, review and scripts were reused.'
+    : stopReason === 'review-changes'
+      ? 'Not run: you stopped the run to fix the test cases after the review.'
+      : 'Not run: every scenario is already covered by existing tests, and you chose not to re-execute them.';
   const body = s.state === 'skipped' ? skippedWhy
-    : s.summary || (s.state === 'running' ? 'Running — see the log below.' : 'Not started yet.');
+    : s.summary || (s.state === 'running' ? 'Running. See the activity log below.' : 'Not started yet.');
   d.innerHTML = `<b>${LABELS[s.name]}</b>\n${s.error ? `<span class="err">Blocked: ${esc(s.error)}</span>\n\n` : ''}${esc(body)}`;
 }
 
@@ -399,29 +570,94 @@ function appendLog(e) {
   const t = new Date(e.ts).toLocaleTimeString();
   div.innerHTML = `<span class="tool">${t}</span> ${e.agent ? `<span class="agent">[${esc(e.agent)}]</span> ` : ''}<span class="${e.level}">${esc(e.text)}</span>`;
   log.appendChild(div);
+  $('logCount').textContent = String(log.children.length);
   if (atBottom) log.scrollTop = log.scrollHeight;
+}
+
+// ---- Report: summary first, then links to the two HTML reports ----
+function verdictClass(rec) {
+  if (!rec) return '';
+  return /no[-\s]?go/i.test(rec) ? 'nogo' : /condition/i.test(rec) ? 'cond' : /\bgo\b/i.test(rec) ? 'go' : '';
+}
+
+function kpi(label, value, sub, tone) {
+  return `<div class="kpi ${tone || ''}"><div class="k">${esc(label)}</div><div class="v">${value}</div>${sub ? `<div class="s">${sub}</div>` : ''}</div>`;
+}
+
+function renderSummary(sum) {
+  const box = $('summary');
+  if (!sum || (!sum.tests && !sum.release && !sum.review && !sum.coverage)) { box.innerHTML = ''; return; }
+  const t = sum.tests, r = sum.release;
+  const cls = verdictClass(r?.recommendation);
+  const icon = { go: '✓', cond: '!', nogo: '✕' }[cls] || '·';
+  let html = '';
+
+  if (r?.recommendation) {
+    html += `<div class="hero ${cls}">
+      <div class="hero-icon" aria-hidden="true">${icon}</div>
+      <div><div class="hero-kicker">Release recommendation</div><div class="hero-title">${esc(r.recommendation)}</div></div>
+      <div class="hero-meta">
+        ${r.riskLevel ? `<div><div class="k">Risk level</div><div class="v">${esc(r.riskLevel)}</div></div>` : ''}
+        ${r.qualityScore != null ? `<div><div class="k">Quality score</div><div class="v">${esc(r.qualityScore)}<span style="font-size:13px;color:var(--muted)">/100</span></div></div>` : ''}
+      </div>
+    </div>`;
+  }
+
+  const tiles = [];
+  if (t) {
+    tiles.push(kpi('Tests passed', `${t.passed}<span style="font-size:14px;color:var(--muted)"> / ${t.total}</span>`, `${t.passRate}% pass rate`, t.passed === t.total ? 'good' : ''));
+    tiles.push(kpi('Failed', t.failed, t.flaky || t.skipped ? `${t.flaky} flaky · ${t.skipped} skipped` : 'No flaky or skipped tests', t.failed ? 'bad' : 'good'));
+    if (t.duration) tiles.push(kpi('Run time', esc(t.duration), 'Headed Playwright run'));
+  }
+  if (sum.defects) {
+    const filed = sum.defects.created + sum.defects.existing;
+    tiles.push(kpi('Jira defects', filed, sum.defects.created ? `${sum.defects.created} new · ${sum.defects.existing} already open` : (filed ? 'All already open' : 'Nothing to file'), filed ? 'warnv' : 'good'));
+  }
+  if (sum.review) tiles.push(kpi('Test case review', `${sum.review.score}<span style="font-size:14px;color:var(--muted)">/100</span>`, esc(sum.review.verdict), sum.review.verdict === 'Changes required' ? 'warnv' : 'good'));
+  if (sum.coverage) tiles.push(kpi('Existing coverage', `${sum.coverage.percent}%`, `${sum.coverage.covered} of ${sum.coverage.total} scenarios reused`));
+  if (tiles.length) html += `<div class="kpis">${tiles.join('')}</div>`;
+
+  if (r && (r.summary || r.keyRisks?.length || r.conditions?.length)) {
+    html += '<div class="narrative">';
+    if (r.summary) html += `<p style="margin:0">${esc(r.summary)}</p>`;
+    if (r.conditions?.length) html += `<h4>Conditions</h4><ul>${r.conditions.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`;
+    if (r.keyRisks?.length) html += `<h4>Key risks</h4><ul>${r.keyRisks.map((k) => `<li>${k.severity ? `<span class="tag sev-${esc(k.severity)}">${esc(k.severity)}</span> ` : ''}${k.id ? `<code>${esc(k.id)}</code> ` : ''}${esc(k.description || '')}</li>`).join('')}</ul>`;
+    html += '</div>';
+  }
+  box.innerHTML = html;
+}
+
+function reportLink(url, title, desc, iconPath) {
+  return `<a class="report-link${url ? '' : ' missing'}" ${url ? `href="${url}" target="_blank" rel="noopener"` : 'aria-disabled="true"'}>
+    <span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${iconPath}</svg></span>
+    <span><span class="t">${title}</span><br><span class="d">${url ? desc : 'Not produced in this run'}</span></span>
+    <span class="arrow" aria-hidden="true">↗</span>
+  </a>`;
 }
 
 function renderResults(e) {
   $('results').classList.remove('hidden');
+  $('reportFor').textContent = e.summary?.requirement ? `${e.summary.requirement} · ${e.summary.mode === 'rerun' ? 'rerun of existing tests' : 'full pipeline'}` : '';
   const v = $('verdict');
-  if (e.verdict) {
-    const block = (e.verdict.match(/Risk Level[\s\S]*?Recommendation[^\n]*/i) || [e.verdict])[0];
-    v.className = 'verdict ' + (/no[-\s]?go/i.test(block) ? 'nogo' : /condition/i.test(block) ? 'cond' : /\bgo\b/i.test(block) ? 'go' : '');
-    v.textContent = block.replace(/\*\*/g, '');
+  if (e.stoppedReason === 'review-changes') {
+    v.className = 'verdict cond';
+    v.textContent = `Stopped after the test case review (${e.review.verdict}, score ${e.review.score}). Fix the findings in TestReview, then run this requirement again.`;
   } else if (e.stoppedReason === 'already-covered') {
     v.className = 'verdict go';
-    v.textContent = `Already covered: all ${e.coverage.total} scenarios (100%) are tested by existing tests. No new test cases or scripts were added, and the tests were not re-executed. To run them later, pick this requirement from the dropdown and choose "Just run the existing tests".`;
+    v.textContent = `Already covered: all ${e.coverage.total} scenarios (100%) are tested by existing tests. No new test cases or scripts were added, and the tests were not re-executed. To run them later, pick this requirement from the list and choose "Just run the existing tests".`;
   } else if (e.status !== 'completed') {
     const s = stages.find((x) => x.name === e.blockedAt);
     v.className = 'verdict blocked';
-    v.textContent = e.status === 'cancelled' ? 'Run cancelled.' : `Pipeline stopped at ${LABELS[e.blockedAt] || e.blockedAt}: ${s?.error || 'see log'}`;
+    v.textContent = e.status === 'cancelled' ? 'Run cancelled.' : `Pipeline stopped at ${LABELS[e.blockedAt] || e.blockedAt}: ${s?.error || 'see the activity log'}`;
   } else v.className = 'verdict hidden';
 
-  const outputs = e.outputs || [];
-  if (!outputs.length) { $('links').innerHTML = '<p class="sub">No report files were produced in this run.</p>'; return; }
-  const featured = (o) => (o.folder === 'TestResults' || o.folder === 'ReleaseReadiness') && /\.html$/i.test(o.name);
-  $('links').innerHTML = outputs.map((o) => `<a href="${o.url}" target="_blank" class="${featured(o) ? 'featured' : ''}"><span><span class="folder">${o.folder}/</span>${esc(o.name)}</span>${o.reused ? '<span class="tag">reused</span>' : ''}</a>`).join('');
+  renderSummary(e.summary);
+  const rep = e.summary?.reports || {};
+  $('links').innerHTML =
+    reportLink(rep.testResults, 'Test results', 'Every test with its Scenario ID, status and errors',
+      '<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>') +
+    reportLink(rep.releaseReadiness, 'Release readiness', 'Risk level, quality score and go / no-go call',
+      '<path d="M12 3l7 3v6c0 4.5-3 7.7-7 9-4-1.3-7-4.5-7-9V6l7-3z"/><path d="M8.5 12.2l2.3 2.3 4.7-4.8"/>');
 }
 
 function esc(s) { return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]); }

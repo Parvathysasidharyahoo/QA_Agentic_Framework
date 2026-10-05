@@ -47,7 +47,9 @@ export class BasePage {
 
   /** Logs the current user out via the app's hamburger menu — available on any logged-in page. */
   async logout() {
-    await this.page.getByTestId('react-burger-menu-btn').click();
+    // The menu button has id="react-burger-menu-btn" but no data-test attribute, so getByTestId
+    // (configured for data-test) can't find it. The sidebar link below does have data-test.
+    await this.page.locator('#react-burger-menu-btn').click();
     await this.page.getByTestId('logout-sidebar-link').click();
   }
 }

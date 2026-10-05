@@ -1,0 +1,48 @@
+{
+  "requirement": "JIRA-193",
+  "scenarios_file": "TestDesign/JIRA-193_PlaywrightScenarios.csv",
+  "tests_dir": "TestAutomate/tests/",
+  "method": "A scenario counts as covered only if an existing test exercises the same flow. Scenarios that depend on a visual_user session are not covered by tests that run as standard_user. Scenarios that do not depend on the logged-in user (login-error flows, unauthenticated access) count as covered by equivalent existing tests.",
+  "total_scenarios": 31,
+  "covered": 13,
+  "partially_covered": 3,
+  "not_covered": 15,
+  "coverage_percent": 41.9,
+  "covered_scenarios": [
+    {"scenario": "SCN-2", "test_case": "TS-2", "existing_test": "JIRA-191.spec.ts [JIRA191-SCN-2]"},
+    {"scenario": "SCN-13", "test_case": "NEG-1", "existing_test": "JIRA-191.spec.ts [JIRA191-SCN-12]; JIRA-1.spec.ts [SCN-22]"},
+    {"scenario": "SCN-14", "test_case": "NEG-2", "existing_test": "JIRA-191.spec.ts [JIRA191-SCN-13]; JIRA-1.spec.ts [SCN-21]"},
+    {"scenario": "SCN-15", "test_case": "NEG-3", "existing_test": "JIRA-191.spec.ts [JIRA191-SCN-14]"},
+    {"scenario": "SCN-16", "test_case": "NEG-4", "existing_test": "JIRA-1.spec.ts [SCN-23]"},
+    {"scenario": "SCN-17", "test_case": "NEG-5", "existing_test": "JIRA-1.spec.ts [SCN-24] (uses a different username; the check is the same)"},
+    {"scenario": "SCN-18", "test_case": "NEG-6", "existing_test": "JIRA-191.spec.ts [JIRA191-SCN-17]; JIRA-1.spec.ts [SCN-30]"},
+    {"scenario": "SCN-19", "test_case": "NEG-7", "existing_test": "JIRA-191.spec.ts [JIRA191-SCN-18]"},
+    {"scenario": "SCN-20", "test_case": "NEG-8", "existing_test": "JIRA-191.spec.ts [JIRA191-SCN-19]"},
+    {"scenario": "SCN-21", "test_case": "NEG-9", "existing_test": "JIRA-191.spec.ts [JIRA191-SCN-20]"},
+    {"scenario": "SCN-22", "test_case": "NEG-10", "existing_test": "JIRA-191.spec.ts [JIRA191-SCN-21]"},
+    {"scenario": "SCN-26", "test_case": "EDGE-4", "existing_test": "JIRA-190.spec.ts [JIRA190-SCN-33]"},
+    {"scenario": "SCN-27", "test_case": "EDGE-5", "existing_test": "JIRA-191.spec.ts [JIRA191-SCN-29] (uses standard_user variants)"}
+  ],
+  "partially_covered_scenarios": [
+    {"scenario": "SCN-1", "test_case": "TS-1", "existing_test": "JIRA-191.spec.ts [JIRA191-SCN-24]", "gap": "Logs in as visual_user and checks the product is visible. It does not check the count is 1 or the exact name."},
+    {"scenario": "SCN-4", "test_case": "POS-1", "existing_test": "JIRA-191.spec.ts [JIRA191-SCN-24]", "gap": "Logs in as visual_user but does not check the URL or that no error is shown."},
+    {"scenario": "SCN-5", "test_case": "POS-2", "existing_test": "JIRA-191.spec.ts [JIRA191-SCN-24]", "gap": "Product visibility and price are recorded. Image and Add to cart button are not asserted."}
+  ],
+  "not_covered_scenarios": [
+    {"scenario": "SCN-3", "test_case": "TS-3", "reason": "No visual_user versus standard_user comparison of list and detail attributes."},
+    {"scenario": "SCN-6", "test_case": "POS-3", "reason": "Exact-name check exists only for standard_user."},
+    {"scenario": "SCN-7", "test_case": "POS-4", "reason": "Detail navigation by name tested only as standard_user."},
+    {"scenario": "SCN-8", "test_case": "POS-5", "reason": "Detail navigation by image tested only as standard_user."},
+    {"scenario": "SCN-9", "test_case": "POS-6", "reason": "Back to products tested only as standard_user."},
+    {"scenario": "SCN-10", "test_case": "POS-7", "reason": "Sorting tested only as standard_user."},
+    {"scenario": "SCN-11", "test_case": "POS-8", "reason": "Add to cart for the target tested only as standard_user."},
+    {"scenario": "SCN-12", "test_case": "POS-9", "reason": "No visual baseline comparison exists."},
+    {"scenario": "SCN-23", "test_case": "EDGE-1", "reason": "Refresh tested only as standard_user."},
+    {"scenario": "SCN-24", "test_case": "EDGE-2", "reason": "Uniqueness tested only as standard_user."},
+    {"scenario": "SCN-25", "test_case": "EDGE-3", "reason": "Name-based locator tested only as standard_user."},
+    {"scenario": "SCN-28", "test_case": "EDGE-6", "reason": "Cart-state check tested only as standard_user."},
+    {"scenario": "SCN-29", "test_case": "EDGE-7", "reason": "Cross-browser check tested only as standard_user."},
+    {"scenario": "SCN-30", "test_case": "EDGE-8", "reason": "No overlap or clickability check for visual_user."},
+    {"scenario": "SCN-31", "test_case": "EDGE-9", "reason": "No repeated-login consistency check."}
+  ]
+}

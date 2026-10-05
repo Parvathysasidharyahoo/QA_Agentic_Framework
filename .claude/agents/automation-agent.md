@@ -12,6 +12,13 @@ You will be pointed at one or more CSV files in `TestDesign` (e.g. `TestDesign/J
 
 ## Task
 
+**Use test-design-agent's coverage verdict.** The TestDesign CSV now has `Coverage Status` and `Covered By` columns, plus a matching `TestDesign/<basename>_Coverage.json`:
+- **`Covered` rows:** write **no** new test. Find the existing test named in `Covered By` and map this requirement's Scenario ID onto it in place, as described in Step 0. If that test no longer exists or clearly doesn't cover the scenario, treat the row as `New` and say so in your report.
+- **`New` rows:** implement them as below, after the Step 0 search. If you find an equivalent test the coverage check missed, map onto it instead of duplicating.
+- **"Mapping only" runs:** when told every scenario is already covered, change nothing except the ID mappings. Don't create a spec file, don't add tests, and don't edit page objects.
+
+Use this requirement's namespaced IDs when mapping (e.g. `JIRA192-SCN-4` for `JIRA-192`'s `SCN-4`): title prefix `[JIRA192-SCN-4]`, tag `@JIRA192-SCN-4`, and a `Scenario ID` annotation. Several requirements can share one test, e.g. `'[JIRA190-SCN-33][JIRA191-SCN-28] Injection strings…'`. The pipeline finds a requirement's tests only through these IDs. A comment saying a scenario "is mapped onto" a test does nothing, so never leave one in place of the actual title, tag and annotation edit.
+
 **Step 0 — check for existing coverage before writing anything.** For every scenario row, search `TestAutomate/tests/*.spec.ts` (and the page objects it uses) for a test that already implements the same behavior — same login/action/assertion sequence, even under a different title (e.g. `TestDesign/JIRA-1_PlaywrightScenarios.csv`'s SCN-14 "Complete checkout with a single item confirms order" already exists as `'P0 - Completes checkout successfully with a single item'` in `TestAutomate/tests/checkout.spec.ts`). If an equivalent test already exists:
 - Do **not** write a duplicate test.
 - Instead, add this scenario's Scenario ID mapping onto the existing test in place (Edit): append the `[SCN-x]` prefix to its title, add `@SCN-x` (and priority/risk tags, if not already tagged) to its tag list, and push the `Scenario ID` annotation at the top of its body — so the existing test now satisfies the mapping requirement without duplicated code.

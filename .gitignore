@@ -13,3 +13,6 @@ TestResults/_raw/
 
 # Local UI run state
 AgentUI/runs.json
+
+# Raw Playwright JSON left by execution runs (the HTML reports hold the results)
+TestResults/*.json

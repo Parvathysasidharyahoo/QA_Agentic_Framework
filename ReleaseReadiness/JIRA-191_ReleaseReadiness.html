@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>JIRA-191 Release Readiness</title>
+<style>
+body{font-family:sans-serif;margin:24px;max-width:960px;color:#1f2328}
+table{border-collapse:collapse;width:100%;margin:8px 0 16px}
+td,th{border:1px solid #ccc;padding:6px;text-align:left;vertical-align:top}
+th{background:#f6f8fa}
+.go{background:#dafbe1;border:1px solid #1a7f37;padding:12px 16px;border-radius:6px}
+.pass{color:#1a7f37;font-weight:bold}
+.note{background:#fff8c5;border:1px solid #d4a72c;padding:8px 12px;border-radius:6px}
+</style></head><body>
+<h1>JIRA-191 Release Readiness Report</h1>
+<p>Assessment date: 2026-10-05 · Test run: 2026-10-05T15:13:14Z (headed, 56.6s)</p>
+
+<div class="go"><h2 style="margin:0 0 6px">Recommendation: GO (Ready for release)</h2>
+All 34 executed tests passed with no failures, flaky tests, skips or retries. There are no failure analyses and no linked Jira defects.</div>
+
+<h2>Test Results Summary</h2>
+<table>
+<tr><th>Total</th><th>Passed</th><th>Failed</th><th>Flaky</th><th>Skipped</th><th>Pass rate</th></tr>
+<tr><td>34</td><td class="pass">34</td><td>0</td><td>0</td><td>0</td><td class="pass">100%</td></tr>
+</table>
+
+<h2>Scenario Coverage</h2>
+<ul>
+<li>JIRA191-SCN-1 to SCN-31 are all covered (31 of 31). Four of them (SCN-4, 15, 16 and 28) run through shared specs <code>JIRA-1.spec.ts</code> and <code>JIRA-190.spec.ts</code>. The other 27 run in <code>JIRA-191.spec.ts</code>.</li>
+<li>Functional coverage: login and authentication gate, product identification (exact name match, uniqueness, position-independent locator), list/detail consistency, navigation, sorting, add to cart, and session handling (refresh, Back after logout).</li>
+<li>Negative and security coverage: wrong password, unknown user, locked-out user, empty fields, direct URL access without login, invalid product id, near-match product names, case/whitespace in username, injection strings.</li>
+<li>User-type coverage: standard, problem, performance_glitch, visual and error users.</li>
+</ul>
+
+<h2>Cross-Browser / Device</h2>
+<table>
+<tr><th>Scenario</th><th>chromium</th><th>firefox</th><th>webkit</th><th>mobile-iphone</th></tr>
+<tr><td>JIRA191-SCN-30 Cross-browser and mobile viewport rendering</td><td class="pass">passed</td><td class="pass">passed</td><td class="pass">passed</td><td class="pass">passed</td></tr>
+</table>
+<p>All other scenarios ran on chromium only.</p>
+
+<h2>Failure Analysis and Defects</h2>
+<table>
+<tr><th>Source</th><th>Content</th></tr>
+<tr><td>JIRA-191_FailureAnalysis.csv</td><td>Header row only, with no failures to analyse. This is consistent with the 0 failures in the results.</td></tr>
+<tr><td>JIRA-191_FailureAnalysis_JiraDefects.csv</td><td>Header row only, with no defects logged or linked.</td></tr>
+</table>
+<p>Open defects: <b>0</b> · Blocking issues: <b>0</b></p>
+
+<h2>Risks and Observations</h2>
+<div class="note"><ul>
+<li><b>Chromium-only for most scenarios (low).</b> Only SCN-30 runs on firefox, webkit and mobile-iphone. Browser-specific regressions in other scenarios would not be caught.</li>
+<li><b>Performance (low).</b> The performance_glitch_user scenario (SCN-23) took 10.0s and passed. The slowest tests are the login-heavy ones (9–11s) and firefox SCN-30 (10.3s). None are anomalous, but the slow ones are worth watching for timeout flakiness.</li>
+<li><b>Single run (low).</b> This assessment is based on one run with zero retries. A clean result is encouraging, but it is not evidence of stability over repeated runs.</li>
+<li><b>Test IDs (info).</b> SCN-30 appears four times, once per project. This is expected and not a duplicate.</li>
+</ul></div>
+
+<h2>Conclusion</h2>
+<p>JIRA-191 meets the release criteria on the evidence provided: 100% pass rate, full scenario coverage, cross-browser and mobile verification for the rendering scenario, and no open defects. The risks above are low and non-blocking.</p>
+</body></html>

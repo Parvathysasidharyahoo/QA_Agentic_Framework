@@ -1,128 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>JIRA-190 — Test Results</title>
-<style>
-  body { font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; padding: 24px; background: #f7f8fa; color: #1a1a1a; }
-  h1 { font-size: 20px; margin: 0 0 4px 0; }
-  .subtitle { color: #666; font-size: 13px; margin-bottom: 20px; }
-  .summary { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
-  .card { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px 18px; min-width: 110px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
-  .card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: #888; }
-  .card .value { font-size: 22px; font-weight: 600; margin-top: 2px; }
-  .card.total .value { color: #333; }
-  .card.passed .value { color: #1e7e34; }
-  .card.failed .value { color: #c81e1e; }
-  .card.flaky .value { color: #8a6400; }
-  .card.skipped .value { color: #546e7a; }
-  .meta { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px 18px; margin-bottom: 24px; font-size: 13px; color: #444; }
-  .meta div { margin: 2px 0; }
-  table { border-collapse: collapse; width: 100%; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
-  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid #eee; font-size: 13px; vertical-align: top; }
-  th { background: #fafafa; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; color: #666; }
-  tr:last-child td { border-bottom: none; }
-  .mono { font-family: Consolas, Menlo, monospace; white-space: nowrap; }
-  .status-pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; text-transform: capitalize; }
-  .error-cell { color: #a11; font-family: Consolas, Menlo, monospace; font-size: 12px; max-width: 420px; }
-  footer { margin-top: 20px; font-size: 12px; color: #999; }
-</style>
-</head>
-<body>
-  <h1>JIRA-190 — Test Results</h1>
-  <div class="subtitle">Scenario-mapped Playwright results (headed run)</div>
+<!doctype html><meta charset=utf-8><title>JIRA-190 Test Results</title><style>body{font-family:sans-serif;margin:24px}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:6px;text-align:left;vertical-align:top}pre{white-space:pre-wrap;margin:0;font-size:12px}</style><h1>JIRA-190 Test Results</h1><p>Run: 2026-10-05T15:23:36.710Z · Headed · Total 35 · <b style=color:#1a7f37>Passed 30</b> · <b style=color:#cf222e>Failed 5</b> · Flaky 0 · Skipped 0 · Duration 101.4s</p><table><tr><th>#</th><th>Spec</th><th>Test</th><th>Project</th><th>Status</th><th>Retries</th><th>Duration</th><th>Error</th></tr><tr><td>1</td><td>checkout.spec.ts</td><td>[SCN-1][SCN-14][JIRA190-SCN-9] P0 - Completes checkout successfully with a single item @smoke</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>11.3s</td><td><pre></pre></td></tr><tr><td>2</td><td>checkout.spec.ts</td><td>[SCN-2][SCN-15][JIRA190-SCN-1][JIRA190-SCN-10][JIRA190-SCN-11] P0 - Completes checkout successfully with multiple items</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>8.0s</td><td><pre></pre></td></tr><tr><td>3</td><td>checkout.spec.ts</td><td>[SCN-26][SCN-29][JIRA190-SCN-22] P1 - Blocks checkout when shipping info is missing</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>8.7s</td><td><pre></pre></td></tr><tr><td>4</td><td>checkout.spec.ts</td><td>[SCN-4][SCN-13][JIRA190-SCN-12] P1 - Removing an item from cart updates checkout total correctly</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>7.4s</td><td><pre></pre></td></tr><tr><td>5</td><td>checkout.spec.ts</td><td>[SCN-25][JIRA190-SCN-17] P2 - Locked out user cannot log in or reach checkout</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>5.9s</td><td><pre></pre></td></tr><tr><td>6</td><td>JIRA-1.spec.ts</td><td>[SCN-9][JIRA190-SCN-6][JIRA191-SCN-4][JIRA192-SCN-4] Standard user logs in successfully</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>8.4s</td><td><pre></pre></td></tr><tr><td>7</td><td>JIRA-1.spec.ts</td><td>[SCN-10][JIRA190-SCN-7] Adding a single product to cart updates badge to 1</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>3.8s</td><td><pre></pre></td></tr><tr><td>8</td><td>JIRA-1.spec.ts</td><td>[SCN-12][JIRA190-SCN-8] Cart page lists all added items</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>4.6s</td><td><pre></pre></td></tr><tr><td>9</td><td>JIRA-1.spec.ts</td><td>[SCN-7][SCN-17][JIRA190-SCN-13] Post-order confirmation returns to inventory with an empty cart</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>9.1s</td><td><pre></pre></td></tr><tr><td>10</td><td>JIRA-1.spec.ts</td><td>[SCN-21][JIRA190-SCN-16] Login fails with invalid username</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>6.0s</td><td><pre></pre></td></tr><tr><td>11</td><td>JIRA-1.spec.ts</td><td>[SCN-22][JIRA190-SCN-15] Login fails with correct username but wrong password</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>4.5s</td><td><pre></pre></td></tr><tr><td>12</td><td>JIRA-1.spec.ts</td><td>[SCN-23][JIRA190-SCN-18][JIRA191-SCN-15][JIRA192-SCN-15] Login fails when username field is left empty</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>5.1s</td><td><pre></pre></td></tr><tr><td>13</td><td>JIRA-1.spec.ts</td><td>[SCN-24][JIRA190-SCN-19][JIRA191-SCN-16][JIRA192-SCN-16] Login fails when password field is left empty</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>5.9s</td><td><pre></pre></td></tr><tr><td>14</td><td>JIRA-1.spec.ts</td><td>[SCN-27][JIRA190-SCN-23] Checkout blocked when last name is missing</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>6.1s</td><td><pre></pre></td></tr><tr><td>15</td><td>JIRA-1.spec.ts</td><td>[SCN-28][JIRA190-SCN-24] Checkout blocked when postal code is missing</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>5.9s</td><td><pre></pre></td></tr><tr><td>16</td><td>JIRA-1.spec.ts</td><td>[SCN-30][JIRA190-SCN-20][JIRA190-SCN-21] Unauthenticated user cannot access protected pages directly via URL</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>6.8s</td><td><pre></pre></td></tr><tr><td>17</td><td>JIRA-1.spec.ts</td><td>[SCN-31][JIRA190-SCN-31] Proceeding to checkout with an empty cart</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>5.1s</td><td><pre></pre></td></tr><tr><td>18</td><td>JIRA-1.spec.ts</td><td>[SCN-37][JIRA190-SCN-30] Browser Back after completing an order does not allow duplicate submission</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>8.4s</td><td><pre></pre></td></tr><tr><td>19</td><td>JIRA-1.spec.ts</td><td>[SCN-39][JIRA190-SCN-32] Adding all six catalog products reaches maximal cart state</td><td>chromium</td><td style=color:#cf222e><b>failed</b></td><td>1</td><td>50.0s</td><td><pre>TimeoutError: locator.click: Timeout 15000ms exceeded.
+Call log:
+  - waiting for getByTestId('inventory-item').filter({ hasText: 'Test.allTheThings T-Shirt (Red)' }).getByRole('button', { name: /add to cart/i })
+</pre></td></tr><tr><td>20</td><td>JIRA-1.spec.ts</td><td>[SCN-40][JIRA190-SCN-34] Script/SQL-injection-style input in the shipping form is not executed</td><td>chromium</td><td style=color:#cf222e><b>failed</b></td><td>1</td><td>18.7s</td><td><pre>Error: Unexpected console errors: Failed to load resource: the server responded with a status of 401 (Unauthorized); Failed to load resource: the server responded with a status of 401 (Unauthorized)
 
-  <div class="summary">
-    <div class="card total"><div class="label">Total</div><div class="value">6</div></div>
-    <div class="card passed"><div class="label">Passed</div><div class="value">2</div></div>
-    <div class="card failed"><div class="label">Failed</div><div class="value">4</div></div>
-    <div class="card flaky"><div class="label">Flaky</div><div class="value">0</div></div>
-    <div class="card skipped"><div class="label">Skipped</div><div class="value">0</div></div>
-  </div>
+expect(received).toHaveLength(expected)
 
-  <div class="meta">
-    <div><strong>Run timestamp:</strong> Wed Sep 09 2026 13:58:22 GMT+0530 (India Standard Time)</div>
-    <div><strong>Browser project(s):</strong> chromium</div>
-    <div><strong>Mode:</strong> headed</div>
-    <div><strong>Spec file:</strong> TestAutomate/tests/JIRA-190.spec.ts</div>
-  </div>
+Expected length: 0
+Received length: 2
+Received array:  ["Failed to load resource: the server responded with a status of 401 (Unauthorized)", "Failed to load resource: the server responded with a status of 401 (Unauthorized)"]</pre></td></tr><tr><td>21</td><td>JIRA-1.spec.ts</td><td>[SCN-43][JIRA190-SCN-25] Direct URL navigation to checkout-complete.html without completing prior steps</td><td>chromium</td><td style=color:#cf222e><b>failed</b></td><td>1</td><td>27.9s</td><td><pre>Error: expect(locator).not.toHaveText(expected) failed
 
-  <table>
-    <thead>
-      <tr>
-        <th>Scenario ID</th>
-        <th>Scenario Name</th>
-        <th>Status</th>
-        <th>Priority</th>
-        <th>Risk</th>
-        <th>Duration</th>
-        <th>Error</th>
-      </tr>
-    </thead>
-    <tbody>
+Locator: getByTestId('complete-header')
+Expected pattern: not /thank you for your order/i
+Received string: "Thank you for your order!"
+Timeout: 5000ms
 
-        <tr>
-          <td class="mono">JIRA190-SCN-7</td>
-          <td>Cart and session state remain deterministic across back, forward, refresh and logout during checkout</td>
-          <td><span class="status-pill" style="background:#fde8e8;color:#c81e1e;border:1px solid #c81e1e;">failed</span></td>
-          <td>medium</td>
-          <td>high</td>
-          <td class="mono">51.6s</td>
-          <td class="error-cell">TimeoutError: locator.click: Timeout 15000ms exceeded. Call log:   - waiting for getByTestId('react-burger-menu-btn')</td>
-        </tr>
+Call log:
+  - Expect "not toHaveText" getByTestId('complete-header') with timeout 5000ms
+  - waiting for getByTestId('complete-header')
+    13 × locator resolved to &lt;h2 class="complete-header" data-test="complete-header">Thank you for your order!&lt;/h2>
+       - unexpected value "Thank you for your order!"
+</pre></td></tr><tr><td>22</td><td>JIRA-1.spec.ts</td><td>[SCN-44][JIRA190-SCN-37] Cart state after logout and re-login as the same user</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>6.5s</td><td><pre></pre></td></tr><tr><td>23</td><td>JIRA-190.spec.ts</td><td>[JIRA190-SCN-2] Authentication gate for protected pages and credential variants</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>8.9s</td><td><pre></pre></td></tr><tr><td>24</td><td>JIRA-190.spec.ts</td><td>[JIRA190-SCN-3] Cart stays consistent through add, remove and re-add</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>5.8s</td><td><pre></pre></td></tr><tr><td>25</td><td>JIRA-190.spec.ts</td><td>[JIRA190-SCN-4] Checkout info validation then overview price check</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>6.7s</td><td><pre></pre></td></tr><tr><td>26</td><td>JIRA-190.spec.ts</td><td>[JIRA190-SCN-5] Journey with problem_user and performance_glitch_user</td><td>chromium</td><td style=color:#cf222e><b>failed</b></td><td>1</td><td>55.8s</td><td><pre>TimeoutError: locator.click: Timeout 15000ms exceeded.
+Call log:
+  - waiting for getByTestId('inventory-item').filter({ hasText: 'Sauce Labs Backpack' }).getByRole('button', { name: /add to cart/i })
+</pre></td></tr><tr><td>27</td><td>JIRA-190.spec.ts</td><td>[JIRA190-SCN-14] Logout after purchase ends the session</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>5.7s</td><td><pre></pre></td></tr><tr><td>28</td><td>JIRA-190.spec.ts</td><td>[JIRA190-SCN-26] Cancel from checkout step one returns to cart with items intact</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>3.4s</td><td><pre></pre></td></tr><tr><td>29</td><td>JIRA-190.spec.ts</td><td>[JIRA190-SCN-27] problem_user full journey does not silently complete with wrong data</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>7.2s</td><td><pre></pre></td></tr><tr><td>30</td><td>JIRA-190.spec.ts</td><td>[JIRA190-SCN-28] performance_glitch_user completes full checkout despite induced latency</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>9.2s</td><td><pre></pre></td></tr><tr><td>31</td><td>JIRA-190.spec.ts</td><td>[JIRA190-SCN-29] Cart persists after page refresh</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>4.2s</td><td><pre></pre></td></tr><tr><td>32</td><td>JIRA-190.spec.ts</td><td>[JIRA190-SCN-33][JIRA191-SCN-28][JIRA192-SCN-25] Injection strings in login fields are rejected and not executed</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>5.7s</td><td><pre></pre></td></tr><tr><td>33</td><td>JIRA-190.spec.ts</td><td>[JIRA190-SCN-35] Very long values in shipping fields do not crash the app</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>6.2s</td><td><pre></pre></td></tr><tr><td>34</td><td>JIRA-190.spec.ts</td><td>[JIRA190-SCN-36] Whitespace-only shipping fields: observed behavior baseline</td><td>chromium</td><td style=color:#1a7f37><b>passed</b></td><td>0</td><td>5.4s</td><td><pre></pre></td></tr><tr><td>35</td><td>JIRA-190.spec.ts</td><td>[JIRA190-SCN-38] Rapid double-click on Finish creates a single order</td><td>chromium</td><td style=color:#cf222e><b>failed</b></td><td>1</td><td>11.4s</td><td><pre>Error: Expected a single navigation to the confirmation page
 
-        <tr>
-          <td class="mono">JIRA190-SCN-15</td>
-          <td>Sorting inventory by price ascending does not break add-to-cart or checkout</td>
-          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
-          <td>medium</td>
-          <td>low</td>
-          <td class="mono">16.7s</td>
-          <td class="error-cell"></td>
-        </tr>
+expect(received).toBe(expected) // Object.is equality
 
-        <tr>
-          <td class="mono">JIRA190-SCN-28</td>
-          <td>performance_glitch_user completes full checkout despite induced latency</td>
-          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
-          <td>low</td>
-          <td>low</td>
-          <td class="mono">15.8s</td>
-          <td class="error-cell"></td>
-        </tr>
-
-        <tr>
-          <td class="mono">JIRA190-SCN-31</td>
-          <td>Rapid double-click on Add to cart does not duplicate the line item</td>
-          <td><span class="status-pill" style="background:#fde8e8;color:#c81e1e;border:1px solid #c81e1e;">failed</span></td>
-          <td>medium</td>
-          <td>medium</td>
-          <td class="mono">29.2s</td>
-          <td class="error-cell">Error: expect(locator).toHaveText(expected) failed Locator: getByTestId('shopping-cart-badge') Expected: &quot;1&quot;</td>
-        </tr>
-
-        <tr>
-          <td class="mono">JIRA190-SCN-33</td>
-          <td>Logging out from checkout-step-one and logging back in resolves to a single defined cart-state outcome</td>
-          <td><span class="status-pill" style="background:#fde8e8;color:#c81e1e;border:1px solid #c81e1e;">failed</span></td>
-          <td>low</td>
-          <td>high</td>
-          <td class="mono">47.7s</td>
-          <td class="error-cell">TimeoutError: locator.click: Timeout 15000ms exceeded. Call log:   - waiting for getByTestId('react-burger-menu-btn')</td>
-        </tr>
-
-        <tr>
-          <td class="mono">JIRA190-SCN-34</td>
-          <td>Postal code field handles boundary-length and whitespace-only input without crashing</td>
-          <td><span class="status-pill" style="background:#fde8e8;color:#c81e1e;border:1px solid #c81e1e;">failed</span></td>
-          <td>low</td>
-          <td>medium</td>
-          <td class="mono">52.1s</td>
-          <td class="error-cell">TimeoutError: locator.click: Timeout 15000ms exceeded. Call log:   - waiting for getByTestId('inventory-item').filter({ hasText: 'Sauce Labs Backpack' }).getByRole('button', { name: /add to cart/i })</td>
-        </tr>
-    </tbody>
-  </table>
-
-  <footer>Generated by test-execution stage. Raw JSON parsed from a single headed Playwright run; no results fabricated or carried over from prior runs.</footer>
-</body>
-</html>
+Expected: 1
+Received: 2</pre></td></tr></table>

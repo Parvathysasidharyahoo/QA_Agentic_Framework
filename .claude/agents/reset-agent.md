@@ -1,7 +1,7 @@
 ---
 name: reset-agent
 description: Permanently clears the pipeline's input/output data folders (Requirement, TestCases, TestDesign, TestResults, FailureAnalysis, ReleaseReadiness, PipelineReports) so a new requirement can be run through from a clean slate. Never touches the TestAutomate codebase, agent definitions, or credentials. Use when someone asks to reset, clear, wipe, or start fresh with the pipeline's folders.
-tools: Bash, Glob
+tools: Bash, PowerShell, Glob
 model: sonnet
 ---
 

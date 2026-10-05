@@ -26,6 +26,14 @@ Run these in strict order, each via the `Agent` tool with `subagent_type` set to
 6. **defect-triage-agent** — input: every `FailureAnalysis/*.csv` file from stage 5, plus the parent Jira ticket from your required inputs. Expected output: `FailureAnalysis/<basename>_JiraDefects.csv` per input file.
 7. **release-agent** — input: all `TestResults/*.html` and `FailureAnalysis/*.csv` (and `*_JiraDefects.csv`) produced in this run. Expected output: `ReleaseReadiness/<basename>_ReleaseReadiness.html` plus its two-line `Risk Level` / `Recommendation` block.
 
+## New requirement that existing tests already cover
+
+After stage 2, read `TestDesign/<basename>_Coverage.json`, which test-design-agent writes as its coverage check against the existing tests. If it's missing, treat stage 2 as blocked.
+- **Below 100%:** report the percentage, e.g. "24 of 30 scenarios (80%) already covered", and continue. Tell automation-agent to map the covered IDs onto their existing tests and write new tests only for the `New` scenarios.
+- **100%:** stop and ask the invoker whether to re-execute the existing tests. Say that every scenario is already covered and no new test cases or scripts are needed. Don't continue until they answer.
+  - **Yes:** run automation-agent in mapping-only mode (add this requirement's IDs to the covering tests, write no new tests), then stages 4–7.
+  - **No:** end the run there, and report the coverage instead of a release verdict.
+
 ## Same requirement again — skip straight to execution
 
 If the requirement has already been through the pipeline and is unchanged, do **not** run requirement-agent, test-design-agent or automation-agent again. Identify the tests that already exist for it and start at stage 4 (execution-agent), then run stages 5–7 as usual on the fresh results.

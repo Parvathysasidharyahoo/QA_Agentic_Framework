@@ -1,1 +1,2 @@
-Scenario ID,Scenario Name,Jira Issue Key,Jira Issue URL,Status,Notes
+Scenario ID,Scenario Name,Jira Key,Jira URL,Summary,Severity,Parent
+JIRA190-SCN-25,Direct URL navigation to checkout-complete.html without completing prior steps,SCRUM-12,https://sasidharparvathy.atlassian.net/browse/SCRUM-12,checkout-complete.html shows order confirmation on direct URL access without placing an order,Medium,SCRUM-1

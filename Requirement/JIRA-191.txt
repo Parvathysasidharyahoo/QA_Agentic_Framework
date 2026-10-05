@@ -1,0 +1,5 @@
+
+As a customer
+
+I should be able to login,
+and identify  product with name 'Sauce Labs Bolt T-Shirt'

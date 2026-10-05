@@ -1,7 +1,7 @@
 ---
 name: execution-agent
 description: Runs the Playwright automation suite in headed mode and publishes an HTML results report mapped to Scenario ID into the TestResults folder. Use when someone asks to run, execute, or report on the automated Playwright scenarios (as opposed to designing or writing them).
-tools: Bash, Read, Write, Glob, Grep
+tools: Bash, PowerShell, Read, Write, Glob, Grep
 model: sonnet
 ---
 

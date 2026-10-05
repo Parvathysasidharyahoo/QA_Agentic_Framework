@@ -32,8 +32,12 @@ export class InventoryPage extends BasePage {
       .getByRole('button', { name: /add to cart/i });
   }
 
-  /** Locates the "Remove" button for a given product name (visible once it's already in the cart) */
-  private removeFromCartButton(productName: string): Locator {
+  /**
+   * Locates the "Remove" button for a given product name (visible once it's already in the cart).
+   * Public so specs use it instead of a bare getByRole('button') inside an inventory item, which
+   * also matches the product image and title (SauceDemo renders both with role=button).
+   */
+  removeFromCartButton(productName: string): Locator {
     return this.page
       .getByTestId('inventory-item')
       .filter({ hasText: productName })

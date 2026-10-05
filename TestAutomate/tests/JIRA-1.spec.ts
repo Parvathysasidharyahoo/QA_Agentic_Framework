@@ -219,10 +219,12 @@ test.describe('JIRA-1 — TS: Consolidated regression scenarios', () => {
 
 test.describe('JIRA-1 — POS: Positive scenarios', () => {
   test(
-    '[SCN-9][JIRA190-SCN-6] Standard user logs in successfully',
-    { tag: ['@SCN-9', '@JIRA190-SCN-6', '@priority-high', '@risk-low'] },
+    '[SCN-9][JIRA190-SCN-6][JIRA191-SCN-4][JIRA192-SCN-4] Standard user logs in successfully',
+    { tag: ['@SCN-9', '@JIRA190-SCN-6', '@JIRA191-SCN-4', '@JIRA192-SCN-4', '@priority-high', '@risk-low'] },
     async ({ page }) => {
       test.info().annotations.push({ type: 'Scenario ID', description: 'SCN-9' });
+      test.info().annotations.push({ type: 'Scenario ID', description: 'JIRA192-SCN-4' });
+      test.info().annotations.push({ type: 'Scenario ID', description: 'JIRA191-SCN-4' });
       test.info().annotations.push({ type: 'Scenario ID', description: 'JIRA190-SCN-6' });
       // Also satisfies JIRA-190's JIRA190-SCN-6 (POS-1) — identical login flow, plus
       // its extra check that no login error is rendered on the resulting page.
@@ -370,9 +372,10 @@ test.describe('JIRA-1 — POS: Positive scenarios', () => {
 
 test.describe('JIRA-1 — NEG: Negative scenarios', () => {
   test(
-    '[SCN-21][JIRA190-SCN-16] Login fails with invalid username',
-    { tag: ['@SCN-21', '@JIRA190-SCN-16', '@priority-high', '@risk-low'] },
+    '[SCN-21][JIRA190-SCN-16][JIRA193-SCN-14] Login fails with invalid username',
+    { tag: ['@SCN-21', '@JIRA190-SCN-16', '@JIRA193-SCN-14', '@priority-high', '@risk-low'] },
     async ({ page }) => {
+      test.info().annotations.push({ type: 'Scenario ID', description: 'JIRA193-SCN-14' });
       test.info().annotations.push({ type: 'Scenario ID', description: 'SCN-21' });
       test.info().annotations.push({ type: 'Scenario ID', description: 'JIRA190-SCN-16' });
       // Also satisfies JIRA-190's JIRA190-SCN-16 (NEG-2, "Login with unknown username")
@@ -388,9 +391,10 @@ test.describe('JIRA-1 — NEG: Negative scenarios', () => {
   );
 
   test(
-    '[SCN-22][JIRA190-SCN-15] Login fails with correct username but wrong password',
-    { tag: ['@SCN-22', '@JIRA190-SCN-15', '@priority-high', '@risk-low'] },
+    '[SCN-22][JIRA190-SCN-15][JIRA193-SCN-13] Login fails with correct username but wrong password',
+    { tag: ['@SCN-22', '@JIRA190-SCN-15', '@JIRA193-SCN-13', '@priority-high', '@risk-low'] },
     async ({ page }) => {
+      test.info().annotations.push({ type: 'Scenario ID', description: 'JIRA193-SCN-13' });
       test.info().annotations.push({ type: 'Scenario ID', description: 'SCN-22' });
       test.info().annotations.push({ type: 'Scenario ID', description: 'JIRA190-SCN-15' });
       const { loginPage } = buildPages(page);
@@ -402,10 +406,13 @@ test.describe('JIRA-1 — NEG: Negative scenarios', () => {
   );
 
   test(
-    '[SCN-23][JIRA190-SCN-18] Login fails when username field is left empty',
-    { tag: ['@SCN-23', '@JIRA190-SCN-18', '@priority-high', '@priority-medium', '@risk-low'] },
+    '[SCN-23][JIRA190-SCN-18][JIRA191-SCN-15][JIRA192-SCN-15][JIRA193-SCN-16] Login fails when username field is left empty',
+    { tag: ['@SCN-23', '@JIRA190-SCN-18', '@JIRA191-SCN-15', '@JIRA192-SCN-15', '@JIRA193-SCN-16', '@priority-high', '@priority-medium', '@risk-low'] },
     async ({ page }) => {
+      test.info().annotations.push({ type: 'Scenario ID', description: 'JIRA193-SCN-16' });
       test.info().annotations.push({ type: 'Scenario ID', description: 'SCN-23' });
+      test.info().annotations.push({ type: 'Scenario ID', description: 'JIRA192-SCN-15' });
+      test.info().annotations.push({ type: 'Scenario ID', description: 'JIRA191-SCN-15' });
       test.info().annotations.push({ type: 'Scenario ID', description: 'JIRA190-SCN-18' });
       // Also satisfies JIRA-190's JIRA190-SCN-18 (NEG-4, "Login with empty username") —
       // identical steps/assertions.
@@ -418,10 +425,13 @@ test.describe('JIRA-1 — NEG: Negative scenarios', () => {
   );
 
   test(
-    '[SCN-24][JIRA190-SCN-19] Login fails when password field is left empty',
-    { tag: ['@SCN-24', '@JIRA190-SCN-19', '@priority-high', '@priority-medium', '@risk-low'] },
+    '[SCN-24][JIRA190-SCN-19][JIRA191-SCN-16][JIRA192-SCN-16][JIRA193-SCN-17] Login fails when password field is left empty',
+    { tag: ['@SCN-24', '@JIRA190-SCN-19', '@JIRA191-SCN-16', '@JIRA192-SCN-16', '@JIRA193-SCN-17', '@priority-high', '@priority-medium', '@risk-low'] },
     async ({ page }) => {
+      test.info().annotations.push({ type: 'Scenario ID', description: 'JIRA193-SCN-17' });
       test.info().annotations.push({ type: 'Scenario ID', description: 'SCN-24' });
+      test.info().annotations.push({ type: 'Scenario ID', description: 'JIRA192-SCN-16' });
+      test.info().annotations.push({ type: 'Scenario ID', description: 'JIRA191-SCN-16' });
       test.info().annotations.push({ type: 'Scenario ID', description: 'JIRA190-SCN-19' });
       const { loginPage } = buildPages(page);
       await loginPage.open();
@@ -461,9 +471,10 @@ test.describe('JIRA-1 — NEG: Negative scenarios', () => {
   );
 
   test(
-    '[SCN-30][JIRA190-SCN-20][JIRA190-SCN-21] Unauthenticated user cannot access protected pages directly via URL',
-    { tag: ['@SCN-30', '@JIRA190-SCN-20', '@JIRA190-SCN-21', '@priority-high', '@risk-high', '@risk-medium'] },
+    '[SCN-30][JIRA190-SCN-20][JIRA190-SCN-21][JIRA193-SCN-18] Unauthenticated user cannot access protected pages directly via URL',
+    { tag: ['@SCN-30', '@JIRA190-SCN-20', '@JIRA190-SCN-21', '@JIRA193-SCN-18', '@priority-high', '@risk-high', '@risk-medium'] },
     async ({ page }) => {
+      test.info().annotations.push({ type: 'Scenario ID', description: 'JIRA193-SCN-18' });
       test.info().annotations.push({ type: 'Scenario ID', description: 'SCN-30' });
       test.info().annotations.push({ type: 'Scenario ID', description: 'JIRA190-SCN-20' });
       test.info().annotations.push({ type: 'Scenario ID', description: 'JIRA190-SCN-21' });

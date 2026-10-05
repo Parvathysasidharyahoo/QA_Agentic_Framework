@@ -353,10 +353,13 @@ test.describe('JIRA-190 — Scenarios not already covered by existing suites', (
   );
 
   test(
-    '[JIRA190-SCN-33] Injection strings in login fields are rejected and not executed',
-    { tag: ['@JIRA190-SCN-33', '@priority-high', '@risk-medium'] },
+    '[JIRA190-SCN-33][JIRA191-SCN-28][JIRA192-SCN-25][JIRA193-SCN-26] Injection strings in login fields are rejected and not executed',
+    { tag: ['@JIRA190-SCN-33', '@JIRA191-SCN-28', '@JIRA192-SCN-25', '@JIRA193-SCN-26', '@priority-high', '@risk-medium'] },
     async ({ page }) => {
+      test.info().annotations.push({ type: 'Scenario ID', description: 'JIRA193-SCN-26' });
       test.info().annotations.push({ type: 'Scenario ID', description: 'JIRA190-SCN-33' });
+      test.info().annotations.push({ type: 'Scenario ID', description: 'JIRA192-SCN-25' });
+      test.info().annotations.push({ type: 'Scenario ID', description: 'JIRA191-SCN-28' });
       let dialogFired = false;
       page.on('dialog', async (dialog) => {
         dialogFired = true;
@@ -370,6 +373,10 @@ test.describe('JIRA-190 — Scenarios not already covered by existing suites', (
       await loginPage.expectLoginError(/do not match any user/i);
       await expect(page).not.toHaveURL(/inventory\.html/);
       expect(dialogFired, 'A JS dialog fired — the injected script executed').toBe(false);
+
+      // JIRA192-SCN-25: inventory is not reachable after the rejected attempt.
+      await loginPage.goto('/inventory.html');
+      await loginPage.expectOnLoginPage();
     }
   );
 

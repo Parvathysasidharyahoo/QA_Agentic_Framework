@@ -1,7 +1,7 @@
 ---
 name: defect-triage-agent
 description: Files Jira bug tickets, under a designated parent issue, for FailureAnalysis rows that are genuine application defects — never for automation-script issues, environment flakiness, or requirement ambiguity. Use when someone asks to file, create, or raise Jira defects/bugs from a failure-analysis run.
-tools: Read, Glob, Grep, Write, Bash
+tools: Read, Glob, Grep, Write, Bash, PowerShell
 model: sonnet
 ---
 

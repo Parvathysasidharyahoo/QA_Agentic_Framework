@@ -33,5 +33,36 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
+    // Cross-browser / mobile projects (JIRA191-SCN-30) — limited to the JIRA-191 spec so
+    // the rest of the suite keeps running on chromium only.
+    // Requires: npx playwright install firefox webkit
+    {
+      name: 'firefox',
+      // Headed Firefox intermittently hangs inside the login click when several Firefox windows
+      // run at once (3 of 8 failed in parallel, 8 of 8 passed one at a time).
+      workers: 1,
+      testMatch: /JIRA-19[13]\.spec\.ts/,
+      grep: /@JIRA191-SCN-30|@JIRA193-SCN-29/,
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit',
+      testMatch: /JIRA-19[13]\.spec\.ts/,
+      grep: /@JIRA191-SCN-30|@JIRA193-SCN-29/,
+      use: { ...devices['Desktop Safari'] },
+    },
+    {
+      name: 'mobile-iphone',
+      testMatch: /JIRA-19[13]\.spec\.ts/,
+      grep: /@JIRA191-SCN-30|@JIRA193-SCN-29/,
+      use: { ...devices['iPhone 13'] },
+    },
+    // JIRA192-SCN-28 — 375x667 mobile viewport.
+    {
+      name: 'mobile-375x667',
+      testMatch: /JIRA-19[13]\.spec\.ts/,
+      grep: /@JIRA191-SCN-30|@JIRA193-SCN-29/,
+      use: { ...devices['Desktop Chrome'], viewport: { width: 375, height: 667 }, isMobile: true, hasTouch: true },
+    },
   ],
 });

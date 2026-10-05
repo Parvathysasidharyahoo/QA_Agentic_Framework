@@ -22,6 +22,11 @@
   .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 16px; }
   .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
   label { font-size: 13px; color: var(--muted); }
+  select { padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); font: inherit; max-width: 100%; }
+  .choice { display: grid; gap: 6px; margin-top: 10px; }
+  .choice label { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; color: var(--text); cursor: pointer; }
+  .choice input { margin-top: 4px; }
+  .choice small { display: block; color: var(--muted); }
   input[type=text] { padding: 9px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); font: inherit; width: 140px; }
   button { font: inherit; border-radius: 6px; padding: 10px 18px; cursor: pointer; border: 1px solid var(--border); background: var(--panel); color: var(--text); }
   button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; min-width: 240px; }
@@ -69,6 +74,8 @@
   .results .folder { color: var(--muted); font-size: 12px; margin-right: 8px; }
   .results .featured { border-color: var(--accent); font-weight: 600; }
   .tag { font-size: 11px; color: var(--muted); border: 1px solid var(--border); border-radius: 10px; padding: 0 8px; align-self: center; }
+  .meter { height: 8px; border-radius: 4px; background: var(--border); overflow: hidden; margin: 8px 0; }
+  .meter > span { display: block; height: 100%; background: var(--ok); }
   .hidden { display: none !important; }
 </style>
 </head>
@@ -84,6 +91,10 @@
       <span id="fileChip" class="file-chip"></span>
       <button id="changeBtn" class="link hidden">Choose a different file</button>
     </div>
+    <div id="existingRow" class="row hidden" style="margin-top:12px">
+      <label for="existing">or pick a requirement that's already here</label>
+      <select id="existing"></select>
+    </div>
     <div id="detect" class="notice hidden"></div>
     <div class="row" style="margin-top:16px">
       <label for="parent">Parent Jira issue for defects</label>
@@ -97,6 +108,14 @@
     <div class="row" style="justify-content:space-between;margin-bottom:16px">
       <strong>Pipeline progress <span id="modeLabel" class="tag"></span></strong>
       <span id="status" class="status"></span>
+    </div>
+    <div id="coverage" class="notice hidden" style="margin:0 0 16px"></div>
+    <div id="decision" class="notice warn hidden" style="margin:0 0 16px">
+      <div id="decisionText"></div>
+      <div class="row" style="margin-top:12px">
+        <button id="decideRerun" class="primary" style="min-width:0">Yes, re-execute the tests</button>
+        <button id="decideStop">No, stop here</button>
+      </div>
     </div>
     <ol id="stages" class="stages"></ol>
     <div id="detail" class="detail hidden"></div>
@@ -122,32 +141,59 @@ let uploaded = null;   // upload response, incl. rerun detection
 let mode = 'select';   // select | ready | running | done
 let stages = [];
 let selected = null;
-let es = null;
 
-function wantsRerun() { return uploaded?.canRerun && !$('regen').checked; }
+function wantsRerun() { return !!uploaded?.hasTests && document.querySelector('input[name=runMode]:checked')?.value === 'rerun'; }
 
 function setMode(m) {
   mode = m;
   const btn = $('mainBtn');
-  btn.disabled = m === 'running';
+  btn.disabled = m === 'running' || m === 'awaiting';
   btn.textContent = {
     select: 'Select requirement file',
-    ready: wantsRerun() ? `Run ${uploaded.tests.length} existing tests & generate report` : 'Generate test report',
-    running: 'Generating report…',
+    ready: 'Start Test Agent',
+    running: 'Testing in progress',
+    awaiting: 'Waiting for your decision',
     done: 'Start a new run',
   }[m];
   $('changeBtn').classList.toggle('hidden', m !== 'ready');
-  $('cancelBtn').classList.toggle('hidden', m !== 'running');
-  $('parent').disabled = m === 'running';
+  $('cancelBtn').classList.toggle('hidden', m !== 'running' && m !== 'awaiting');
+  $('parent').disabled = m === 'running' || m === 'awaiting';
   $('detect').classList.toggle('hidden', m !== 'ready');
+  $('existingRow').classList.toggle('hidden', !(m === 'select' || m === 'ready') || $('existing').options.length < 2);
 }
+
+// Requirements already in the Requirement folder, so their tests can be run without uploading again.
+let requirements = [];
+async function loadRequirements() {
+  const sel = $('existing');
+  if (!requirements.length) { sel.innerHTML = '<option value="">Finding existing tests…</option>'; sel.disabled = true; $('existingRow').classList.remove('hidden'); }
+  try {
+    const r = await fetch('/api/requirements', { cache: 'no-store' });
+    requirements = r.ok ? await r.json() : [];
+  } catch { requirements = []; }
+  sel.disabled = false;
+  sel.innerHTML = '<option value="">Choose…</option>' + requirements.map((q) =>
+    `<option value="${esc(q.file)}">${esc(q.base)} — ${q.hasTests ? `${q.tests.length} tests ready to run` : 'no tests yet'}</option>`).join('');
+  if (uploaded) sel.value = uploaded.file;
+  setMode(mode);
+}
+
+$('existing').onchange = () => {
+  const q = requirements.find((x) => x.file === $('existing').value);
+  if (!q) return;
+  uploaded = q;
+  $('fileChip').innerHTML = `Requirement: <b>${esc(q.path)}</b>`;
+  renderDetection(q);
+  showMsg('');
+  setMode('ready');
+};
 
 function showMsg(text, isErr) { $('msg').textContent = text || ''; $('msg').className = 'msg' + (isErr ? ' err' : ''); }
 
 $('mainBtn').onclick = () => {
   if (mode === 'select') $('fileInput').click();
   else if (mode === 'ready') startRun();
-  else if (mode === 'done') { uploaded = null; $('fileChip').textContent = ''; $('results').classList.add('hidden'); $('progress').classList.add('hidden'); showMsg(''); setMode('select'); }
+  else if (mode === 'done') { uploaded = null; $('existing').value = ''; $('fileChip').textContent = ''; $('results').classList.add('hidden'); $('progress').classList.add('hidden'); showMsg(''); setMode('select'); }
 };
 $('changeBtn').onclick = () => $('fileInput').click();
 $('cancelBtn').onclick = () => fetch('/api/cancel', { method: 'POST' });
@@ -168,27 +214,35 @@ $('fileInput').onchange = async (e) => {
     renderDetection(j);
     showMsg('');
     setMode('ready');
+    loadRequirements();
   } catch (err) { showMsg('Upload failed: ' + err.message, true); }
 };
 
 function renderDetection(j) {
   const d = $('detect');
-  if (j.canRerun) {
-    d.className = 'notice';
-    d.innerHTML = `<b>Same requirement — ${j.tests.length} existing tests found for ${esc(j.base)}</b> across ${j.specs.map((s) => `<code>${esc(s.split('/').pop())}</code>`).join(', ')}.
-      Test case analysis, test design and automation will be skipped. Only these tests run (other requirements' tests in the same files don't), then failure analysis, defect triage and release readiness run on the fresh results.
+  if (j.hasTests) {
+    // Tests already exist: let the user just run them, or regenerate. Default to running them,
+    // unless the uploaded file differs from the copy that the tests were generated from.
+    const specs = j.specs.map((s) => `<code>${esc(s.split('/').pop())}</code>`).join(', ');
+    d.className = j.contentChanged ? 'notice warn' : 'notice';
+    d.innerHTML = `<b>${j.tests.length} existing tests found for ${esc(j.base)}</b> across ${specs}.
+      ${j.contentChanged ? '<br>This file differs from the copy those tests were generated from, so regenerating is suggested, but you can still just run the existing tests.' : ''}
       <details style="margin:8px 0"><summary>Show the ${j.tests.length} tests</summary>
         <ul>${j.tests.map((t) => `<li><code>${esc(t.id)}</code> ${esc(t.title)} <span class="tag">${esc(t.spec.split('/').pop())}</span></li>`).join('')}</ul>
       </details>
-      <label class="check"><input type="checkbox" id="regen"> Regenerate test cases &amp; scripts from scratch instead</label>`;
+      <div class="choice">
+        <label><input type="radio" name="runMode" value="rerun" ${j.contentChanged ? '' : 'checked'}>
+          <span>Just run the existing tests<small>Skips test cases, test design and automation. Runs only these ${j.tests.length} tests, then failure analysis, defect triage and release readiness.</small></span></label>
+        <label><input type="radio" name="runMode" value="full" ${j.contentChanged ? 'checked' : ''}>
+          <span>Regenerate test cases &amp; scripts, then run<small>Full seven-stage pipeline. Existing specs are extended rather than duplicated.</small></span></label>
+      </div>`;
   } else if (j.contentChanged) {
     d.className = 'notice warn';
-    d.innerHTML = `<b>${esc(j.base)} was uploaded before, but its content has changed.</b> The full pipeline will run so test cases and scripts match the new requirement.${j.specs.length ? ` Existing specs (${j.specs.map(esc).join(', ')}) will be extended rather than duplicated.` : ''}<input type="checkbox" id="regen" hidden>`;
+    d.innerHTML = `<b>${esc(j.base)} was uploaded before, but its content has changed.</b> The full pipeline will run so test cases and scripts match the new requirement.`;
   } else {
     d.className = 'notice';
-    d.innerHTML = `<b>New requirement.</b> The full seven-stage pipeline will run.<input type="checkbox" id="regen" hidden>`;
+    d.innerHTML = `<b>${j.previouslyUploaded ? 'No tests exist yet for this requirement.' : 'New requirement.'}</b> The full seven-stage pipeline will run.`;
   }
-  $('regen').onchange = () => setMode('ready');
 }
 
 async function startRun() {
@@ -205,10 +259,36 @@ async function startRun() {
   subscribe();
 }
 
+// Polls for progress rather than holding a stream open: Cloudflare tunnels buffer streamed
+// responses, so a shared public link would otherwise never see live updates.
+let poll = { timer: null, runId: null, since: 0, stopped: false };
+
 function subscribe() {
-  if (es) es.close();
-  es = new EventSource('/api/events');
-  es.onmessage = (m) => handle(JSON.parse(m.data));
+  clearTimeout(poll.timer);
+  poll = { timer: null, runId: null, since: 0, stopped: false };
+  tick();
+}
+
+async function tick() {
+  try {
+    const r = await fetch(`/api/state?since=${poll.since}`, { cache: 'no-store' });
+    const s = await r.json();
+    if (s.idle) s.events = []; // nothing has run yet; keep polling so a run started elsewhere shows up
+    else if (s.id !== poll.runId) {
+      // First sight of this run: render its current state, then replay its log from the start.
+      if (poll.since) return subscribe();
+      poll.runId = s.id;
+      handle({ type: 'hello', file: s.file, mode: s.mode, status: s.status, stages: s.stages });
+    }
+    for (const e of s.events) handle(e);
+    poll.since = s.next;
+    if (!s.idle) {
+      renderCoverage(s.coverage);
+      renderDecision(s.status === 'awaiting' ? s.decision : null);
+      if (s.status === 'awaiting' || s.status === 'running') { setStatus(s.status); setMode(s.status); }
+    }
+  } catch { /* network blip: try again on the next tick */ }
+  if (!poll.stopped) poll.timer = setTimeout(tick, 2000);
 }
 
 function handle(e) {
@@ -218,26 +298,71 @@ function handle(e) {
       $('log').innerHTML = '';
       $('fileChip').innerHTML = `Requirement: <b>Requirement/${esc(e.file)}</b>`;
       $('modeLabel').textContent = e.mode === 'rerun' ? 'Rerun of existing tests' : 'Full pipeline';
+      runMode = e.mode;
+      stoppedCovered = false;
+      renderCoverage(null);
+      renderDecision(null);
       $('progress').classList.remove('hidden');
       renderStages(e.stages);
       setStatus(e.status);
-      if (e.status === 'running') setMode('running');
+      if (e.status === 'running' || e.status === 'awaiting') setMode(e.status);
       return;
     case 'stages': return renderStages(e.stages);
     case 'log': return appendLog(e);
     case 'done':
+      stoppedCovered = e.stoppedReason === 'already-covered';
+      renderDecision(null);
+      if (e.coverage) renderCoverage(e.coverage);
       setStatus(e.status);
       renderResults(e);
       setMode('done');
-      es.close();
+      poll.stopped = true;
+      loadRequirements();
       return;
   }
 }
 
+let runMode = 'full';
+let stoppedCovered = false;
+
+function renderCoverage(cov) {
+  const box = $('coverage');
+  if (!cov) return box.classList.add('hidden');
+  box.classList.remove('hidden');
+  box.className = 'notice';
+  const covered = cov.scenarios.filter((x) => x.status === 'Covered');
+  const fresh = cov.scenarios.filter((x) => x.status !== 'Covered');
+  const where = (x) => x.coveredBy ? ` <span class="tag">${esc(String(x.coveredBy.spec || '').split('/').pop())}</span>` : '';
+  box.innerHTML = `<b>Existing coverage: ${cov.covered} of ${cov.total} scenarios (${cov.percent}%) are already covered by existing tests.</b>
+    <div class="meter"><span style="width:${cov.percent}%"></span></div>
+    ${cov.covered === cov.total ? 'No new test cases or scripts are needed.' : `Only the ${cov.new} new scenario${cov.new === 1 ? '' : 's'} will get new test scripts; covered ones are linked to their existing tests.`}
+    ${covered.length ? `<details style="margin-top:6px"><summary>${covered.length} already covered</summary><ul>${covered.map((x) => `<li><code>${esc(x.id)}</code> ${esc(x.name || '')}${where(x)}<br><small>${esc(x.coveredBy?.title || '')}</small></li>`).join('')}</ul></details>` : ''}
+    ${fresh.length ? `<details style="margin-top:6px"><summary>${fresh.length} new</summary><ul>${fresh.map((x) => `<li><code>${esc(x.id)}</code> ${esc(x.name || '')}</li>`).join('')}</ul></details>` : ''}`;
+}
+
+function renderDecision(d) {
+  const box = $('decision');
+  if (!d) return box.classList.add('hidden');
+  $('decisionText').innerHTML = `<b>${esc(d.question)}</b>`;
+  box.classList.remove('hidden');
+}
+
+async function decide(choice) {
+  $('decideRerun').disabled = $('decideStop').disabled = true;
+  try {
+    const r = await fetch('/api/decision', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ choice }) });
+    if (!r.ok) showMsg((await r.json()).error, true);
+  } finally {
+    $('decideRerun').disabled = $('decideStop').disabled = false;
+  }
+}
+$('decideRerun').onclick = () => decide('rerun');
+$('decideStop').onclick = () => decide('stop');
+
 function setStatus(s) {
   const el = $('status');
-  el.textContent = { running: 'Running', completed: 'Completed', failed: 'Blocked — see stage details', cancelled: 'Cancelled' }[s] || s;
-  el.style.color = s === 'completed' ? 'var(--ok)' : s === 'running' ? 'var(--accent)' : 'var(--err)';
+  el.textContent = { running: 'Running', awaiting: 'Waiting for your decision', completed: 'Completed', failed: 'Blocked — see stage details', cancelled: 'Cancelled' }[s] || s;
+  el.style.color = s === 'completed' ? 'var(--ok)' : s === 'running' ? 'var(--accent)' : s === 'awaiting' ? 'var(--warn)' : 'var(--err)';
 }
 
 function renderStages(list) {
@@ -258,7 +383,11 @@ function renderDetail() {
   const d = $('detail');
   if (!s) return d.classList.add('hidden');
   d.classList.remove('hidden');
-  const body = s.state === 'skipped' ? 'Skipped: the requirement is unchanged, so the existing test cases, design and scripts were reused.'
+  const idx = stages.indexOf(s);
+  const skippedWhy = runMode === 'rerun' && idx < 3
+    ? 'Skipped: the requirement is unchanged, so the existing test cases, design and scripts were reused.'
+    : 'Not run: every scenario is already covered by existing tests, and you chose not to re-execute them.';
+  const body = s.state === 'skipped' ? skippedWhy
     : s.summary || (s.state === 'running' ? 'Running — see the log below.' : 'Not started yet.');
   d.innerHTML = `<b>${LABELS[s.name]}</b>\n${s.error ? `<span class="err">Blocked: ${esc(s.error)}</span>\n\n` : ''}${esc(body)}`;
 }
@@ -280,6 +409,9 @@ function renderResults(e) {
     const block = (e.verdict.match(/Risk Level[\s\S]*?Recommendation[^\n]*/i) || [e.verdict])[0];
     v.className = 'verdict ' + (/no[-\s]?go/i.test(block) ? 'nogo' : /condition/i.test(block) ? 'cond' : /\bgo\b/i.test(block) ? 'go' : '');
     v.textContent = block.replace(/\*\*/g, '');
+  } else if (e.stoppedReason === 'already-covered') {
+    v.className = 'verdict go';
+    v.textContent = `Already covered: all ${e.coverage.total} scenarios (100%) are tested by existing tests. No new test cases or scripts were added, and the tests were not re-executed. To run them later, pick this requirement from the dropdown and choose "Just run the existing tests".`;
   } else if (e.status !== 'completed') {
     const s = stages.find((x) => x.name === e.blockedAt);
     v.className = 'verdict blocked';
@@ -297,6 +429,7 @@ function esc(s) { return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '
 // Reattach to a run already in progress (e.g. after a page refresh).
 setMode('select');
 subscribe();
+loadRequirements();
 </script>
 </body>
 </html>

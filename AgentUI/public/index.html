@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QA Agent Pipeline</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --panel: #fff; --text: #1d2330; --muted: #677085; --border: #e3e6ec;
+    --accent: #3b5bdb; --accent-hover: #324fc4; --ok: #2f9e44; --warn: #e8a317; --err: #e03131; --idle: #adb5bd;
+    --reused: #74b816; --info-bg: #edf2ff; --warn-bg: #fff4e6;
+    --log-bg: #0f1420; --log-text: #d6dbe6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #11141b; --panel: #191d27; --text: #e6e9ef; --muted: #8e97aa; --border: #2a3040; --idle: #4a5162; --info-bg: #1e2540; --warn-bg: #3a2c14; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 24px; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+  .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  label { font-size: 13px; color: var(--muted); }
+  input[type=text] { padding: 9px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); font: inherit; width: 140px; }
+  button { font: inherit; border-radius: 6px; padding: 10px 18px; cursor: pointer; border: 1px solid var(--border); background: var(--panel); color: var(--text); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; min-width: 240px; }
+  button.primary:hover:not(:disabled) { background: var(--accent-hover); }
+  button:disabled { opacity: .55; cursor: not-allowed; }
+  .link { background: none; border: none; color: var(--accent); padding: 0; text-decoration: underline; }
+  .file-chip { font-size: 14px; color: var(--muted); }
+  .file-chip b { color: var(--text); }
+  .msg { margin-top: 12px; font-size: 14px; }
+  .msg.err { color: var(--err); }
+  .notice { margin-top: 16px; padding: 12px 14px; border-radius: 8px; font-size: 14px; background: var(--info-bg); }
+  .notice.warn { background: var(--warn-bg); }
+  .notice ul { margin: 6px 0 8px; padding-left: 20px; }
+  .notice code { font-size: 13px; }
+  .check { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--text); }
+
+  .stages { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+  .stage { text-align: center; font-size: 12px; color: var(--muted); cursor: pointer; border-radius: 8px; padding: 6px 2px; }
+  .stage:hover, .stage.selected { background: var(--bg); }
+  .dot { width: 30px; height: 30px; border-radius: 50%; margin: 0 auto 6px; display: grid; place-items: center; font-weight: 700; font-size: 13px; color: #fff; background: var(--idle); }
+  .stage.running .dot { background: var(--accent); animation: pulse 1.2s infinite; }
+  .stage.done .dot { background: var(--ok); }
+  .stage.skipped .dot { background: var(--reused); }
+  .stage.failed .dot { background: var(--err); }
+  .stage.running, .stage.done, .stage.skipped, .stage.failed { color: var(--text); }
+  .stage .state { display: block; font-size: 11px; color: var(--muted); }
+  @keyframes pulse { 50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 25%, transparent); } }
+  @media (max-width: 640px) { .stages { grid-template-columns: repeat(4, 1fr); } }
+  .detail { margin-top: 12px; padding: 12px; border-radius: 8px; background: var(--bg); font-size: 13.5px; white-space: pre-wrap; max-height: 260px; overflow: auto; }
+  .detail .err { color: var(--err); font-weight: 600; }
+
+  .status { font-weight: 600; }
+  .log { background: var(--log-bg); color: var(--log-text); border-radius: 8px; padding: 12px; height: 320px; overflow: auto; font: 12.5px/1.5 ui-monospace, Consolas, monospace; white-space: pre-wrap; word-break: break-word; }
+  .log .agent { color: #74c0fc; }
+  .log .tool { color: #a9b1c2; }
+  .log .error { color: #ff8787; }
+  .log .info { color: #8ce99a; }
+
+  .verdict { padding: 14px; border-radius: 8px; margin-bottom: 14px; white-space: pre-wrap; font-size: 14px; border-left: 4px solid var(--accent); background: var(--bg); }
+  .verdict.go { border-color: var(--ok); }
+  .verdict.cond { border-color: var(--warn); }
+  .verdict.nogo, .verdict.blocked { border-color: var(--err); }
+  .results a { display: flex; justify-content: space-between; gap: 8px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; margin-bottom: 6px; color: var(--accent); text-decoration: none; }
+  .results a:hover { background: var(--bg); }
+  .results .folder { color: var(--muted); font-size: 12px; margin-right: 8px; }
+  .results .featured { border-color: var(--accent); font-weight: 600; }
+  .tag { font-size: 11px; color: var(--muted); border: 1px solid var(--border); border-radius: 10px; padding: 0 8px; align-self: center; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <h1>QA Agent Pipeline</h1>
+  <p class="sub">Upload a requirement and run the agents: requirement → test design → automation → execution → failure analysis → defect triage → release readiness. Re-uploading an unchanged requirement reruns its existing test scripts.</p>
+
+  <section class="panel">
+    <div class="row">
+      <button id="mainBtn" class="primary">Select requirement file</button>
+      <input id="fileInput" type="file" accept=".txt,.md,.csv,.json" hidden>
+      <span id="fileChip" class="file-chip"></span>
+      <button id="changeBtn" class="link hidden">Choose a different file</button>
+    </div>
+    <div id="detect" class="notice hidden"></div>
+    <div class="row" style="margin-top:16px">
+      <label for="parent">Parent Jira issue for defects</label>
+      <input id="parent" type="text" value="SCRUM-1">
+      <button id="cancelBtn" class="hidden">Cancel run</button>
+    </div>
+    <div id="msg" class="msg"></div>
+  </section>
+
+  <section id="progress" class="panel hidden">
+    <div class="row" style="justify-content:space-between;margin-bottom:16px">
+      <strong>Pipeline progress <span id="modeLabel" class="tag"></span></strong>
+      <span id="status" class="status"></span>
+    </div>
+    <ol id="stages" class="stages"></ol>
+    <div id="detail" class="detail hidden"></div>
+    <div style="margin-top:16px" id="log" class="log"></div>
+  </section>
+
+  <section id="results" class="panel results hidden">
+    <strong style="display:block;margin-bottom:12px">Reports</strong>
+    <div id="verdict" class="verdict hidden"></div>
+    <div id="links"></div>
+  </section>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const LABELS = {
+  'requirement-agent': 'Requirement', 'test-design-agent': 'Test design', 'automation-agent': 'Automation',
+  'execution-agent': 'Execution', 'failure-analysis-agent': 'Failure analysis', 'defect-triage-agent': 'Defect triage',
+  'release-agent': 'Release readiness',
+};
+const STATE_TEXT = { pending: 'Waiting', running: 'Running…', done: 'Done', skipped: 'Reused', failed: 'Blocked' };
+let uploaded = null;   // upload response, incl. rerun detection
+let mode = 'select';   // select | ready | running | done
+let stages = [];
+let selected = null;
+let es = null;
+
+function wantsRerun() { return uploaded?.canRerun && !$('regen').checked; }
+
+function setMode(m) {
+  mode = m;
+  const btn = $('mainBtn');
+  btn.disabled = m === 'running';
+  btn.textContent = {
+    select: 'Select requirement file',
+    ready: wantsRerun() ? `Run ${uploaded.tests.length} existing tests & generate report` : 'Generate test report',
+    running: 'Generating report…',
+    done: 'Start a new run',
+  }[m];
+  $('changeBtn').classList.toggle('hidden', m !== 'ready');
+  $('cancelBtn').classList.toggle('hidden', m !== 'running');
+  $('parent').disabled = m === 'running';
+  $('detect').classList.toggle('hidden', m !== 'ready');
+}
+
+function showMsg(text, isErr) { $('msg').textContent = text || ''; $('msg').className = 'msg' + (isErr ? ' err' : ''); }
+
+$('mainBtn').onclick = () => {
+  if (mode === 'select') $('fileInput').click();
+  else if (mode === 'ready') startRun();
+  else if (mode === 'done') { uploaded = null; $('fileChip').textContent = ''; $('results').classList.add('hidden'); $('progress').classList.add('hidden'); showMsg(''); setMode('select'); }
+};
+$('changeBtn').onclick = () => $('fileInput').click();
+$('cancelBtn').onclick = () => fetch('/api/cancel', { method: 'POST' });
+
+$('fileInput').onchange = async (e) => {
+  const f = e.target.files[0];
+  e.target.value = '';
+  if (!f) return;
+  showMsg('Uploading…');
+  const fd = new FormData();
+  fd.append('file', f);
+  try {
+    const r = await fetch('/api/upload', { method: 'POST', body: fd });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error);
+    uploaded = j;
+    $('fileChip').innerHTML = `Uploaded to <b>${esc(j.path)}</b>`;
+    renderDetection(j);
+    showMsg('');
+    setMode('ready');
+  } catch (err) { showMsg('Upload failed: ' + err.message, true); }
+};
+
+function renderDetection(j) {
+  const d = $('detect');
+  if (j.canRerun) {
+    d.className = 'notice';
+    d.innerHTML = `<b>Same requirement — ${j.tests.length} existing tests found for ${esc(j.base)}</b> across ${j.specs.map((s) => `<code>${esc(s.split('/').pop())}</code>`).join(', ')}.
+      Test case analysis, test design and automation will be skipped. Only these tests run (other requirements' tests in the same files don't), then failure analysis, defect triage and release readiness run on the fresh results.
+      <details style="margin:8px 0"><summary>Show the ${j.tests.length} tests</summary>
+        <ul>${j.tests.map((t) => `<li><code>${esc(t.id)}</code> ${esc(t.title)} <span class="tag">${esc(t.spec.split('/').pop())}</span></li>`).join('')}</ul>
+      </details>
+      <label class="check"><input type="checkbox" id="regen"> Regenerate test cases &amp; scripts from scratch instead</label>`;
+  } else if (j.contentChanged) {
+    d.className = 'notice warn';
+    d.innerHTML = `<b>${esc(j.base)} was uploaded before, but its content has changed.</b> The full pipeline will run so test cases and scripts match the new requirement.${j.specs.length ? ` Existing specs (${j.specs.map(esc).join(', ')}) will be extended rather than duplicated.` : ''}<input type="checkbox" id="regen" hidden>`;
+  } else {
+    d.className = 'notice';
+    d.innerHTML = `<b>New requirement.</b> The full seven-stage pipeline will run.<input type="checkbox" id="regen" hidden>`;
+  }
+  $('regen').onchange = () => setMode('ready');
+}
+
+async function startRun() {
+  showMsg('');
+  const r = await fetch('/api/run', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ file: uploaded.file, parentIssue: $('parent').value, mode: wantsRerun() ? 'rerun' : 'full' }),
+  });
+  const j = await r.json();
+  if (!r.ok) return showMsg(j.error, true);
+  $('log').innerHTML = '';
+  $('results').classList.add('hidden');
+  selected = null;
+  subscribe();
+}
+
+function subscribe() {
+  if (es) es.close();
+  es = new EventSource('/api/events');
+  es.onmessage = (m) => handle(JSON.parse(m.data));
+}
+
+function handle(e) {
+  switch (e.type) {
+    case 'idle': return;
+    case 'hello':
+      $('log').innerHTML = '';
+      $('fileChip').innerHTML = `Requirement: <b>Requirement/${esc(e.file)}</b>`;
+      $('modeLabel').textContent = e.mode === 'rerun' ? 'Rerun of existing tests' : 'Full pipeline';
+      $('progress').classList.remove('hidden');
+      renderStages(e.stages);
+      setStatus(e.status);
+      if (e.status === 'running') setMode('running');
+      return;
+    case 'stages': return renderStages(e.stages);
+    case 'log': return appendLog(e);
+    case 'done':
+      setStatus(e.status);
+      renderResults(e);
+      setMode('done');
+      es.close();
+      return;
+  }
+}
+
+function setStatus(s) {
+  const el = $('status');
+  el.textContent = { running: 'Running', completed: 'Completed', failed: 'Blocked — see stage details', cancelled: 'Cancelled' }[s] || s;
+  el.style.color = s === 'completed' ? 'var(--ok)' : s === 'running' ? 'var(--accent)' : 'var(--err)';
+}
+
+function renderStages(list) {
+  stages = list;
+  $('stages').innerHTML = list.map((s, i) => {
+    const icon = s.state === 'done' ? '✓' : s.state === 'skipped' ? '↺' : s.state === 'failed' ? '!' : i + 1;
+    return `<li class="stage ${s.state}${selected === s.name ? ' selected' : ''}" data-name="${s.name}"><div class="dot">${icon}</div>${LABELS[s.name]}<span class="state">${STATE_TEXT[s.state]}</span></li>`;
+  }).join('');
+  for (const li of $('stages').children) li.onclick = () => { selected = selected === li.dataset.name ? null : li.dataset.name; renderStages(stages); };
+  // Auto-show the blocking stage's reason.
+  const failed = list.find((s) => s.state === 'failed');
+  if (failed && !selected) selected = failed.name;
+  renderDetail();
+}
+
+function renderDetail() {
+  const s = stages.find((x) => x.name === selected);
+  const d = $('detail');
+  if (!s) return d.classList.add('hidden');
+  d.classList.remove('hidden');
+  const body = s.state === 'skipped' ? 'Skipped: the requirement is unchanged, so the existing test cases, design and scripts were reused.'
+    : s.summary || (s.state === 'running' ? 'Running — see the log below.' : 'Not started yet.');
+  d.innerHTML = `<b>${LABELS[s.name]}</b>\n${s.error ? `<span class="err">Blocked: ${esc(s.error)}</span>\n\n` : ''}${esc(body)}`;
+}
+
+function appendLog(e) {
+  const log = $('log');
+  const atBottom = log.scrollTop + log.clientHeight >= log.scrollHeight - 20;
+  const div = document.createElement('div');
+  const t = new Date(e.ts).toLocaleTimeString();
+  div.innerHTML = `<span class="tool">${t}</span> ${e.agent ? `<span class="agent">[${esc(e.agent)}]</span> ` : ''}<span class="${e.level}">${esc(e.text)}</span>`;
+  log.appendChild(div);
+  if (atBottom) log.scrollTop = log.scrollHeight;
+}
+
+function renderResults(e) {
+  $('results').classList.remove('hidden');
+  const v = $('verdict');
+  if (e.verdict) {
+    const block = (e.verdict.match(/Risk Level[\s\S]*?Recommendation[^\n]*/i) || [e.verdict])[0];
+    v.className = 'verdict ' + (/no[-\s]?go/i.test(block) ? 'nogo' : /condition/i.test(block) ? 'cond' : /\bgo\b/i.test(block) ? 'go' : '');
+    v.textContent = block.replace(/\*\*/g, '');
+  } else if (e.status !== 'completed') {
+    const s = stages.find((x) => x.name === e.blockedAt);
+    v.className = 'verdict blocked';
+    v.textContent = e.status === 'cancelled' ? 'Run cancelled.' : `Pipeline stopped at ${LABELS[e.blockedAt] || e.blockedAt}: ${s?.error || 'see log'}`;
+  } else v.className = 'verdict hidden';
+
+  const outputs = e.outputs || [];
+  if (!outputs.length) { $('links').innerHTML = '<p class="sub">No report files were produced in this run.</p>'; return; }
+  const featured = (o) => (o.folder === 'TestResults' || o.folder === 'ReleaseReadiness') && /\.html$/i.test(o.name);
+  $('links').innerHTML = outputs.map((o) => `<a href="${o.url}" target="_blank" class="${featured(o) ? 'featured' : ''}"><span><span class="folder">${o.folder}/</span>${esc(o.name)}</span>${o.reused ? '<span class="tag">reused</span>' : ''}</a>`).join('');
+}
+
+function esc(s) { return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]); }
+
+// Reattach to a run already in progress (e.g. after a page refresh).
+setMode('select');
+subscribe();
+</script>
+</body>
+</html>

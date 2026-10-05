@@ -1,0 +1,5 @@
+As a customer
+
+I should be able to login,
+add products to cart,
+complete checkout successfully.

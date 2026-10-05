@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>JIRA-190 — Release Readiness Report</title>
+<style>
+  body { font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; padding: 24px; background: #f7f8fa; color: #1a1a1a; }
+  h1 { font-size: 22px; margin: 0 0 4px 0; }
+  h2 { font-size: 17px; margin: 32px 0 10px 0; border-bottom: 2px solid #e0e0e0; padding-bottom: 6px; }
+  .subtitle { color: #666; font-size: 13px; margin-bottom: 20px; }
+  .banner { border-radius: 10px; padding: 22px 26px; margin-bottom: 26px; color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+  .banner.red { background: linear-gradient(135deg,#b71c1c,#d32f2f); }
+  .banner.amber { background: linear-gradient(135deg,#8a6400,#c99700); }
+  .banner.green { background: linear-gradient(135deg,#1b5e20,#2e7d32); }
+  .banner .risk { font-size: 28px; font-weight: 700; letter-spacing: 0.02em; }
+  .banner .rec { font-size: 18px; font-weight: 600; margin-top: 6px; }
+  .banner .sub { font-size: 13px; opacity: 0.9; margin-top: 8px; }
+  table { border-collapse: collapse; width: 100%; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.04); margin-bottom: 10px; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid #eee; font-size: 13px; vertical-align: top; }
+  th { background: #fafafa; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; color: #666; }
+  tr:last-child td { border-bottom: none; }
+  .mono { font-family: Consolas, Menlo, monospace; }
+  .num { text-align: right; }
+  .arith { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 14px 18px; font-family: Consolas, Menlo, monospace; font-size: 13px; line-height: 1.7; margin-bottom: 18px; white-space: pre-wrap; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+  .pill.high { background:#fde8e8;color:#c81e1e;border:1px solid #c81e1e; }
+  .pill.medium { background:#fff4e0;color:#8a6400;border:1px solid #c99700; }
+  .pill.low { background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34; }
+  .badge-app { background:#fde8e8;color:#a11;border:1px solid #a11; padding:1px 8px; border-radius:10px; font-size:11px; font-weight:600; }
+  .badge-noise { background:#eef1f4;color:#546e7a;border:1px solid #b0bec5; padding:1px 8px; border-radius:10px; font-size:11px; font-weight:600; }
+  .risk-card { background:#fff; border:1px solid #e0e0e0; border-left:6px solid #c81e1e; border-radius:8px; padding:14px 18px; margin-bottom:12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+  .risk-card h3 { margin: 0 0 6px 0; font-size: 15px; }
+  .risk-card .meta { font-size: 12px; color: #555; margin-top: 6px; }
+  .risk-card .meta span { margin-right: 14px; }
+  .note-box { background:#fdf6e3; border:1px solid #e0c98a; border-radius:8px; padding:12px 18px; font-size:13px; color:#5c4a1a; margin-bottom: 18px; }
+  footer { margin-top: 28px; font-size: 12px; color: #999; border-top: 1px solid #e0e0e0; padding-top: 14px; }
+  footer a { color: #4a6fa5; }
+  footer ul { margin: 6px 0; padding-left: 20px; }
+  .src-group { margin-bottom: 8px; }
+  .src-group strong { color: #666; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; }
+</style>
+</head>
+<body>
+  <h1>JIRA-190 — Release Readiness Report</h1>
+  <div class="subtitle">Aggregated by release-readiness-agent (stage 7) from TestResults (stage 4), FailureAnalysis (stage 5), and JiraDefects (stage 6). Assessed 2026-09-09. Covers 3 TestResults/FailureAnalysis pairs: JIRA-190, checkout, JIRA-1.</div>
+
+  <div class="banner red">
+    <div class="risk">Risk Level: High</div>
+    <div class="rec">Recommendation: No-Go</div>
+    <div class="sub">Quality Score 40.4/100. Driven by a Quality Score below the 60 threshold AND an Application defect that breaks the core purchase journey itself (a false "Thank you for your order!" confirmation renders on direct URL navigation with no order ever placed — SCN-43 / SCRUM-10).</div>
+  </div>
+
+  <h2>1. Metrics — Aggregate Across All Three Reports</h2>
+  <table>
+    <thead><tr><th>Source</th><th class="num">Total</th><th class="num">Passed</th><th class="num">Failed</th><th class="num">Flaky</th><th class="num">Skipped</th><th class="num">Pass Rate</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">JIRA-190_TestResults.html</td><td class="num">6</td><td class="num">2</td><td class="num">4</td><td class="num">0</td><td class="num">0</td><td class="num">33.3%</td></tr>
+      <tr><td class="mono">checkout_TestResults.html</td><td class="num">5</td><td class="num">5</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">100%</td></tr>
+      <tr><td class="mono">JIRA-1_TestResults.html</td><td class="num">34</td><td class="num">22</td><td class="num">12</td><td class="num">0</td><td class="num">0</td><td class="num">64.7%</td></tr>
+      <tr style="font-weight:700;background:#fafafa;"><td>Combined</td><td class="num">45</td><td class="num">29</td><td class="num">16</td><td class="num">0</td><td class="num">0</td><td class="num">64.44%</td></tr>
+    </tbody>
+  </table>
+
+  <table>
+    <tbody>
+      <tr><th style="width:260px;">Business Critical Defect count</th><td><strong>2</strong> — Application-defect rows with Severity Critical or High (SCN-32 / SCRUM-9, High; SCN-43 / SCRUM-10, High). SCN-20 is also an Application defect but Severity Medium, so it does not count here (it still deducts from the Quality Score below).</td></tr>
+      <tr><th>Quality Score</th><td><strong>40.4 / 100</strong> — arithmetic below.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="arith">Quality Score arithmetic
+======================
+Pass Rate            = (Passed + 0.5 x Flaky) / Total = (29 + 0.5x0) / 45 = 29/45 = 0.64444
+Base score            = 100 x Pass Rate = 100 x 0.64444 = 64.44
+
+Deductions (Application-defect rows only; Automation defect / Environment flakiness / Requirement ambiguity rows are excluded by design):
+  JIRA-1 SCN-20  Application defect, Severity Medium   -> -4
+  JIRA-1 SCN-32  Application defect, Severity High     -> -10
+  JIRA-1 SCN-43  Application defect, Severity High     -> -10
+  ---------------------------------------------------------------
+  Total deduction                                       -24
+
+Quality Score = 64.44 - 24 = 40.44  ->  40.4 (floor 0 / cap 100 not triggered)</div>
+
+  <h2>2. Areas Affected — Failures Grouped by Functional Area</h2>
+  <table>
+    <thead><tr><th>Area</th><th class="num">Failures</th><th>Scenario IDs</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Login</td><td class="num">1</td><td class="mono">SCN-34 (JIRA-1)</td><td>Environment/flakiness (shared logout-menu locator timeout).</td></tr>
+      <tr><td>Cart</td><td class="num">3</td><td class="mono">JIRA190-SCN-31; SCN-6, SCN-39 (JIRA-1)</td><td>1 Automation defect (JIRA190-SCN-31), 2 Automation defect / test-state-reuse bugs (SCN-6, cart-size loop reuses stale session; SCN-39 environment/flaky on 6th add).</td></tr>
+      <tr><td>Checkout</td><td class="num">7</td><td class="mono">JIRA190-SCN-34; SCN-20, SCN-32, SCN-36, SCN-40, SCN-41, SCN-42 (JIRA-1)</td><td>Includes both Business Critical defects touching checkout (SCN-32 Cancel routing) plus the related lower-severity SCN-20 instance of the same routing bug (both tracked to SCRUM-9/SCRUM-8). Remainder is Environment/flakiness (401/404 console noise) or Requirement ambiguity (SCN-41 whitespace handling).</td></tr>
+      <tr><td>Order Confirmation</td><td class="num">1</td><td class="mono">SCN-43 (JIRA-1)</td><td>The single highest-severity finding this run — false order confirmation on direct URL navigation. Business Critical, tracked SCRUM-10.</td></tr>
+      <tr><td>Cross-cutting / Session</td><td class="num">4</td><td class="mono">JIRA190-SCN-7, JIRA190-SCN-33; SCN-8, SCN-44 (JIRA-1)</td><td>All Environment/flakiness or Automation defect — same recurring <span class="mono">react-burger-menu-btn</span> logout-click timeout / stale shared-session pattern, not a distinct product defect per stage-5 analysis.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. Key Risks (Business Critical Defects, ranked most severe first)</h2>
+
+  <div class="risk-card">
+    <h3>1. SCN-43 — False order confirmation on direct URL navigation to checkout-complete.html <span class="badge-app">Application defect</span></h3>
+    <div>Navigating directly to <span class="mono">/checkout-complete.html</span> after login, with no items ever added and no checkout steps completed, renders the real "Thank you for your order!" heading exactly as if a genuine order had been placed — no redirect or state guard exists. This is a customer-trust risk (a user could believe a non-existent order was placed) and directly breaks the core purchase journey's Order Confirmation step per the High/No-Go rubric example verbatim.</div>
+    <div class="meta"><span><strong>Severity:</strong> High</span><span><strong>Area:</strong> Order Confirmation</span><span><strong>Jira:</strong> <a href="https://sasidharparvathy.atlassian.net/browse/SCRUM-10">SCRUM-10</a></span></div>
+  </div>
+
+  <div class="risk-card">
+    <h3>2. SCN-32 — Cancel from checkout overview does not return to cart; blocks the empty-cart checkout-prevention safeguard <span class="badge-app">Application defect</span></h3>
+    <div><span class="mono">CheckoutStepTwoPage.cancel()</span> navigates to <span class="mono">/inventory.html</span> instead of the required <span class="mono">/cart.html</span>. Because the test fails at this shared Cancel step before it can exercise the scenario's actual intent (verifying that checkout is blocked once all items are removed), the higher-risk negative-path safeguard this scenario targets remains completely unverified this run.</div>
+    <div class="meta"><span><strong>Severity:</strong> High</span><span><strong>Area:</strong> Checkout</span><span><strong>Jira:</strong> <a href="https://sasidharparvathy.atlassian.net/browse/SCRUM-9">SCRUM-9</a></span></div>
+  </div>
+
+  <div class="risk-card" style="border-left-color:#c99700;">
+    <h3>Related, lower-severity: SCN-20 — Same Cancel-button routing bug <span class="badge-app">Application defect</span></h3>
+    <div>Identical root cause to SCN-32 above (Cancel routes to <span class="mono">/inventory.html</span> not <span class="mono">/cart.html</span>), but the item remains intact in this scenario so the acceptance-criterion breach is narrower. Not counted as Business Critical (Severity Medium) but still deducted -4 in the Quality Score above, and worth fixing alongside SCRUM-9 since it is the same underlying defect.</div>
+    <div class="meta"><span><strong>Severity:</strong> Medium</span><span><strong>Area:</strong> Checkout</span><span><strong>Jira:</strong> <a href="https://sasidharparvathy.atlassian.net/browse/SCRUM-8">SCRUM-8</a></span></div>
+  </div>
+
+  <div class="note-box">
+    <strong>Confidence caveat (not a blocking risk):</strong> Of the 16 total failures across this run, 12 (75%) are classified Environment/flakiness (8) or Automation defect (4) — not confirmed product defects. In JIRA-1 specifically, 6 of 12 failures share a single recurring <span class="mono">react-burger-menu-btn</span> logout-click timeout signature (SCN-34, SCN-36's/SCN-40's/SCN-42's shared 401/404 console noise, SCN-44) and 2 more (SCN-6, SCN-8) stem from tests reusing a stale shared page/session rather than a real app bug. This means the raw 64.44% pass rate understates actual product health more than it overstates it — but it also means the failure count alone should not be read as "16 defects"; only the 2-3 Application-defect rows above represent confirmed product risk, and re-running the flaky/automation-defect scenarios in isolation before the next pipeline pass would sharpen this number.
+  </div>
+
+  <footer>
+    <div class="src-group"><strong>TestResults (stage 4)</strong>
+      <ul>
+        <li><a href="../TestResults/JIRA-190_TestResults.html">../TestResults/JIRA-190_TestResults.html</a></li>
+        <li><a href="../TestResults/checkout_TestResults.html">../TestResults/checkout_TestResults.html</a></li>
+        <li><a href="../TestResults/JIRA-1_TestResults.html">../TestResults/JIRA-1_TestResults.html</a></li>
+      </ul>
+    </div>
+    <div class="src-group"><strong>FailureAnalysis (stage 5)</strong>
+      <ul>
+        <li><a href="../FailureAnalysis/JIRA-190_FailureAnalysis.csv">../FailureAnalysis/JIRA-190_FailureAnalysis.csv</a></li>
+        <li><a href="../FailureAnalysis/JIRA-1_FailureAnalysis.csv">../FailureAnalysis/JIRA-1_FailureAnalysis.csv</a></li>
+        <li>checkout: 0 failures, no CSV produced (expected)</li>
+      </ul>
+    </div>
+    <div class="src-group"><strong>JiraDefects (stage 6, filed under parent SCRUM-1)</strong>
+      <ul>
+        <li><a href="../FailureAnalysis/JIRA-190_FailureAnalysis_JiraDefects.csv">../FailureAnalysis/JIRA-190_FailureAnalysis_JiraDefects.csv</a> (0 defects filed — no qualifying rows)</li>
+        <li><a href="../FailureAnalysis/JIRA-1_FailureAnalysis_JiraDefects.csv">../FailureAnalysis/JIRA-1_FailureAnalysis_JiraDefects.csv</a> (SCRUM-8, SCRUM-9, SCRUM-10)</li>
+      </ul>
+    </div>
+    Generated by release-readiness-agent (stage 7). No metrics fabricated or carried over from prior pipeline runs — every count above was recomputed from the source files linked here.
+  </footer>
+</body>
+</html>

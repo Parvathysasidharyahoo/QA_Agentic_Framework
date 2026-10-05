@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>JIRA-1 — Test Results</title>
+<style>
+  body { font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; padding: 24px; background: #f7f8fa; color: #1a1a1a; }
+  h1 { font-size: 20px; margin: 0 0 4px 0; }
+  .subtitle { color: #666; font-size: 13px; margin-bottom: 20px; }
+  .summary { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
+  .card { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px 18px; min-width: 110px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+  .card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: #888; }
+  .card .value { font-size: 22px; font-weight: 600; margin-top: 2px; }
+  .card.total .value { color: #333; }
+  .card.passed .value { color: #1e7e34; }
+  .card.failed .value { color: #c81e1e; }
+  .card.flaky .value { color: #8a6400; }
+  .card.skipped .value { color: #546e7a; }
+  .meta { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px 18px; margin-bottom: 24px; font-size: 13px; color: #444; }
+  .meta div { margin: 2px 0; }
+  table { border-collapse: collapse; width: 100%; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid #eee; font-size: 13px; vertical-align: top; }
+  th { background: #fafafa; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; color: #666; }
+  tr:last-child td { border-bottom: none; }
+  .mono { font-family: Consolas, Menlo, monospace; white-space: nowrap; }
+  .status-pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; text-transform: capitalize; }
+  .error-cell { color: #a11; font-family: Consolas, Menlo, monospace; font-size: 12px; max-width: 420px; }
+  footer { margin-top: 20px; font-size: 12px; color: #999; }
+</style>
+</head>
+<body>
+  <h1>JIRA-1 — Test Results</h1>
+  <div class="subtitle">Scenario-mapped Playwright results (headed run)</div>
+
+  <div class="summary">
+    <div class="card total"><div class="label">Total</div><div class="value">34</div></div>
+    <div class="card passed"><div class="label">Passed</div><div class="value">22</div></div>
+    <div class="card failed"><div class="label">Failed</div><div class="value">12</div></div>
+    <div class="card flaky"><div class="label">Flaky</div><div class="value">0</div></div>
+    <div class="card skipped"><div class="label">Skipped</div><div class="value">0</div></div>
+  </div>
+
+  <div class="meta">
+    <div><strong>Run timestamp:</strong> Wed Sep 09 2026 14:00:47 GMT+0530 (India Standard Time)</div>
+    <div><strong>Browser project(s):</strong> chromium</div>
+    <div><strong>Mode:</strong> headed</div>
+    <div><strong>Spec file:</strong> TestAutomate/tests/JIRA-1.spec.ts</div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Scenario ID</th>
+        <th>Scenario Name</th>
+        <th>Status</th>
+        <th>Priority</th>
+        <th>Risk</th>
+        <th>Duration</th>
+        <th>Error</th>
+      </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+          <td class="mono">SCN-3</td>
+          <td>Login flow across valid, invalid and locked-out credentials</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>high</td>
+          <td>high</td>
+          <td class="mono">27.0s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">JIRA190-SCN-4</td>
+          <td>Login flow across valid, invalid and locked-out credentials</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>high</td>
+          <td>high</td>
+          <td class="mono">27.0s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">JIRA190-SCN-5</td>
+          <td>Checkout shipping-info form validation across blank-field combinations</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>medium</td>
+          <td>medium</td>
+          <td class="mono">33.4s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-5</td>
+          <td>Checkout shipping-info form validation across blank-field combinations</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>medium</td>
+          <td>medium</td>
+          <td class="mono">33.4s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">JIRA190-SCN-6</td>
+          <td>Price computation is correct across cart size variations (1, 2, 6 items)</td>
+          <td><span class="status-pill" style="background:#fde8e8;color:#c81e1e;border:1px solid #c81e1e;">failed</span></td>
+          <td>high</td>
+          <td>medium</td>
+          <td class="mono">72.4s</td>
+          <td class="error-cell">Test timeout of 30000ms exceeded.</td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-6</td>
+          <td>Price computation is correct across cart size variations (1, 2, 6 items)</td>
+          <td><span class="status-pill" style="background:#fde8e8;color:#c81e1e;border:1px solid #c81e1e;">failed</span></td>
+          <td>high</td>
+          <td>medium</td>
+          <td class="mono">72.4s</td>
+          <td class="error-cell">Test timeout of 30000ms exceeded.</td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-7</td>
+          <td>Post-order confirmation returns to inventory with an empty cart</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>medium</td>
+          <td>medium</td>
+          <td class="mono">6.9s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">JIRA190-SCN-8</td>
+          <td>Cancel from checkout overview returns to cart with items intact</td>
+          <td><span class="status-pill" style="background:#fde8e8;color:#c81e1e;border:1px solid #c81e1e;">failed</span></td>
+          <td>medium</td>
+          <td>medium</td>
+          <td class="mono">36.9s</td>
+          <td class="error-cell">Error: expect(page).toHaveURL(expected) failed Expected pattern: /cart\.html/ Received string:  &quot;https://www.saucedemo.com/inventory.html&quot;</td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-8</td>
+          <td>Session/navigation state across refresh and browser back on checkout-step-two</td>
+          <td><span class="status-pill" style="background:#fde8e8;color:#c81e1e;border:1px solid #c81e1e;">failed</span></td>
+          <td>medium</td>
+          <td>high</td>
+          <td class="mono">71.2s</td>
+          <td class="error-cell">Test timeout of 30000ms exceeded.</td>
+        </tr>
+
+        <tr>
+          <td class="mono">JIRA190-SCN-9</td>
+          <td>Standard user logs in successfully</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>high</td>
+          <td>low</td>
+          <td class="mono">37.1s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-9</td>
+          <td>Standard user logs in successfully</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>high</td>
+          <td>low</td>
+          <td class="mono">37.1s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">JIRA190-SCN-10</td>
+          <td>Adding a single product to cart updates badge to 1</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>high</td>
+          <td>low</td>
+          <td class="mono">33.1s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-10</td>
+          <td>Adding a single product to cart updates badge to 1</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>high</td>
+          <td>low</td>
+          <td class="mono">33.1s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">JIRA190-SCN-11</td>
+          <td>Cart page lists all added items</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>medium</td>
+          <td>low</td>
+          <td class="mono">5.0s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-11</td>
+          <td>Adding multiple distinct products updates badge to matching count</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>high</td>
+          <td>low</td>
+          <td class="mono">10.3s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-12</td>
+          <td>Cart page lists all added items</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>medium</td>
+          <td>low</td>
+          <td class="mono">5.0s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">JIRA190-SCN-16</td>
+          <td>Cancel from checkout overview returns to cart with items intact</td>
+          <td><span class="status-pill" style="background:#fde8e8;color:#c81e1e;border:1px solid #c81e1e;">failed</span></td>
+          <td>medium</td>
+          <td>medium</td>
+          <td class="mono">36.9s</td>
+          <td class="error-cell">Error: expect(page).toHaveURL(expected) failed Expected pattern: /cart\.html/ Received string:  &quot;https://www.saucedemo.com/inventory.html&quot;</td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-16</td>
+          <td>Valid international postal code is accepted in shipping form</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>medium</td>
+          <td>medium</td>
+          <td class="mono">6.5s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">JIRA190-SCN-17</td>
+          <td>Valid international postal code is accepted in shipping form</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>medium</td>
+          <td>medium</td>
+          <td class="mono">6.5s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-17</td>
+          <td>Post-order confirmation returns to inventory with an empty cart</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>medium</td>
+          <td>medium</td>
+          <td class="mono">6.9s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">JIRA190-SCN-18</td>
+          <td>Login fails with invalid username</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>high</td>
+          <td>low</td>
+          <td class="mono">4.2s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-18</td>
+          <td>Cart badge is absent when cart is empty</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>low</td>
+          <td>medium</td>
+          <td class="mono">4.8s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">JIRA190-SCN-19</td>
+          <td>Login fails when username field is left empty</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>high</td>
+          <td>low</td>
+          <td class="mono">4.4s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-19</td>
+          <td>Sorting inventory by price (low to high) reorders products correctly</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>low</td>
+          <td>medium</td>
+          <td class="mono">4.6s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-20</td>
+          <td>Cancel from checkout overview returns to cart with items intact</td>
+          <td><span class="status-pill" style="background:#fde8e8;color:#c81e1e;border:1px solid #c81e1e;">failed</span></td>
+          <td>medium</td>
+          <td>medium</td>
+          <td class="mono">36.9s</td>
+          <td class="error-cell">Error: expect(page).toHaveURL(expected) failed Expected pattern: /cart\.html/ Received string:  &quot;https://www.saucedemo.com/inventory.html&quot;</td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-21</td>
+          <td>Login fails with invalid username</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>high</td>
+          <td>low</td>
+          <td class="mono">4.2s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">JIRA190-SCN-22</td>
+          <td>Checkout blocked when last name is missing</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>medium</td>
+          <td>medium</td>
+          <td class="mono">5.2s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-22</td>
+          <td>Login fails with correct username but wrong password</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>high</td>
+          <td>low</td>
+          <td class="mono">4.4s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">JIRA190-SCN-23</td>
+          <td>Checkout blocked when postal code is missing</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>medium</td>
+          <td>medium</td>
+          <td class="mono">4.0s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-23</td>
+          <td>Login fails when username field is left empty</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>high</td>
+          <td>low</td>
+          <td class="mono">4.4s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">JIRA190-SCN-24</td>
+          <td>Unauthenticated user cannot access protected pages directly via URL</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>high</td>
+          <td>high</td>
+          <td class="mono">4.4s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-24</td>
+          <td>Login fails when password field is left empty</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>high</td>
+          <td>low</td>
+          <td class="mono">6.1s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">JIRA190-SCN-25</td>
+          <td>Proceeding to checkout with an empty cart</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>medium</td>
+          <td>high</td>
+          <td class="mono">4.1s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">JIRA190-SCN-26</td>
+          <td>Script/SQL-injection-style input in the shipping form is not executed</td>
+          <td><span class="status-pill" style="background:#fde8e8;color:#c81e1e;border:1px solid #c81e1e;">failed</span></td>
+          <td>medium</td>
+          <td>high</td>
+          <td class="mono">39.5s</td>
+          <td class="error-cell">Error: Unexpected console errors: Failed to load resource: the server responded with a status of 401 (Unauthorized); Failed to load resource: the server responded with a status of 401 (Unauthorized) expect(received).toHaveLength(expected) Expected length: 0</td>
+        </tr>
+
+        <tr>
+          <td class="mono">JIRA190-SCN-27</td>
+          <td>problem_user seeded account: add-to-cart mechanics still function (known-issue baseline)</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>low</td>
+          <td>medium</td>
+          <td class="mono">3.2s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-27</td>
+          <td>Checkout blocked when last name is missing</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>medium</td>
+          <td>medium</td>
+          <td class="mono">5.2s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-28</td>
+          <td>Checkout blocked when postal code is missing</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>medium</td>
+          <td>medium</td>
+          <td class="mono">4.0s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">JIRA190-SCN-29</td>
+          <td>Browser Back after completing an order does not allow duplicate submission</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>medium</td>
+          <td>high</td>
+          <td class="mono">13.5s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">JIRA190-SCN-30</td>
+          <td>Refreshing the browser mid-checkout on checkout-step-two.html</td>
+          <td><span class="status-pill" style="background:#fde8e8;color:#c81e1e;border:1px solid #c81e1e;">failed</span></td>
+          <td>medium</td>
+          <td>high</td>
+          <td class="mono">17.3s</td>
+          <td class="error-cell">Error: Unexpected console errors after reload: Failed to load resource: the server responded with a status of 401 (Unauthorized); Failed to load resource: the server responded with a status of 401 (Unauthorized); Failed to load resource: the server responded with a status of 404 () expect(received).…</td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-30</td>
+          <td>Unauthenticated user cannot access protected pages directly via URL</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>high</td>
+          <td>high</td>
+          <td class="mono">4.4s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-31</td>
+          <td>Proceeding to checkout with an empty cart</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>medium</td>
+          <td>high</td>
+          <td class="mono">4.1s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">JIRA190-SCN-32</td>
+          <td>Adding all six catalog products reaches maximal cart state</td>
+          <td><span class="status-pill" style="background:#fde8e8;color:#c81e1e;border:1px solid #c81e1e;">failed</span></td>
+          <td>medium</td>
+          <td>medium</td>
+          <td class="mono">61.0s</td>
+          <td class="error-cell">Test timeout of 30000ms exceeded.</td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-32</td>
+          <td>Removing all items from cart during checkout prevents order completion</td>
+          <td><span class="status-pill" style="background:#fde8e8;color:#c81e1e;border:1px solid #c81e1e;">failed</span></td>
+          <td>medium</td>
+          <td>high</td>
+          <td class="mono">33.6s</td>
+          <td class="error-cell">Error: expect(page).toHaveURL(expected) failed Expected pattern: /cart\.html/ Received string:  &quot;https://www.saucedemo.com/inventory.html&quot;</td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-33</td>
+          <td>problem_user seeded account: add-to-cart mechanics still function (known-issue baseline)</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>low</td>
+          <td>medium</td>
+          <td class="mono">3.2s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-34</td>
+          <td>performance_glitch_user experiences a significant login delay</td>
+          <td><span class="status-pill" style="background:#fde8e8;color:#c81e1e;border:1px solid #c81e1e;">failed</span></td>
+          <td>low</td>
+          <td>medium</td>
+          <td class="mono">63.1s</td>
+          <td class="error-cell">TimeoutError: locator.click: Timeout 15000ms exceeded. Call log:   - waiting for getByTestId('react-burger-menu-btn')</td>
+        </tr>
+
+        <tr>
+          <td class="mono">JIRA190-SCN-35</td>
+          <td>Direct URL navigation to checkout-complete.html without completing prior steps</td>
+          <td><span class="status-pill" style="background:#fde8e8;color:#c81e1e;border:1px solid #c81e1e;">failed</span></td>
+          <td>medium</td>
+          <td>high</td>
+          <td class="mono">38.2s</td>
+          <td class="error-cell">Error: expect(locator).not.toHaveText(expected) failed Locator: getByTestId('complete-header') Expected pattern: not /thank you for your order/i</td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-35</td>
+          <td>error_user seeded account: cart-removal behavior (known-issue baseline)</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>low</td>
+          <td>medium</td>
+          <td class="mono">2.2s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-36</td>
+          <td>Refreshing the browser mid-checkout on checkout-step-two.html</td>
+          <td><span class="status-pill" style="background:#fde8e8;color:#c81e1e;border:1px solid #c81e1e;">failed</span></td>
+          <td>medium</td>
+          <td>high</td>
+          <td class="mono">17.3s</td>
+          <td class="error-cell">Error: Unexpected console errors after reload: Failed to load resource: the server responded with a status of 401 (Unauthorized); Failed to load resource: the server responded with a status of 401 (Unauthorized); Failed to load resource: the server responded with a status of 404 () expect(received).…</td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-37</td>
+          <td>Browser Back after completing an order does not allow duplicate submission</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>medium</td>
+          <td>high</td>
+          <td class="mono">13.5s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-38</td>
+          <td>Clicking Add to cart on an already-added product does not duplicate the item</td>
+          <td><span class="status-pill" style="background:#e6f4ea;color:#1e7e34;border:1px solid #1e7e34;">passed</span></td>
+          <td>medium</td>
+          <td>medium</td>
+          <td class="mono">13.1s</td>
+          <td class="error-cell"></td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-39</td>
+          <td>Adding all six catalog products reaches maximal cart state</td>
+          <td><span class="status-pill" style="background:#fde8e8;color:#c81e1e;border:1px solid #c81e1e;">failed</span></td>
+          <td>medium</td>
+          <td>medium</td>
+          <td class="mono">61.0s</td>
+          <td class="error-cell">Test timeout of 30000ms exceeded.</td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-40</td>
+          <td>Script/SQL-injection-style input in the shipping form is not executed</td>
+          <td><span class="status-pill" style="background:#fde8e8;color:#c81e1e;border:1px solid #c81e1e;">failed</span></td>
+          <td>medium</td>
+          <td>high</td>
+          <td class="mono">39.5s</td>
+          <td class="error-cell">Error: Unexpected console errors: Failed to load resource: the server responded with a status of 401 (Unauthorized); Failed to load resource: the server responded with a status of 401 (Unauthorized) expect(received).toHaveLength(expected) Expected length: 0</td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-41</td>
+          <td>Whitespace-only input in required shipping fields is rejected</td>
+          <td><span class="status-pill" style="background:#fde8e8;color:#c81e1e;border:1px solid #c81e1e;">failed</span></td>
+          <td>medium</td>
+          <td>high</td>
+          <td class="mono">43.0s</td>
+          <td class="error-cell">Error: expect(locator).toBeVisible() failed Locator: getByTestId('error') Expected: visible</td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-42</td>
+          <td>Excessively long input in postal code field is handled gracefully</td>
+          <td><span class="status-pill" style="background:#fde8e8;color:#c81e1e;border:1px solid #c81e1e;">failed</span></td>
+          <td>low</td>
+          <td>medium</td>
+          <td class="mono">30.0s</td>
+          <td class="error-cell">Error: Unexpected console errors: Failed to load resource: the server responded with a status of 401 (Unauthorized); Failed to load resource: the server responded with a status of 401 (Unauthorized) expect(received).toHaveLength(expected) Expected length: 0</td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-43</td>
+          <td>Direct URL navigation to checkout-complete.html without completing prior steps</td>
+          <td><span class="status-pill" style="background:#fde8e8;color:#c81e1e;border:1px solid #c81e1e;">failed</span></td>
+          <td>medium</td>
+          <td>high</td>
+          <td class="mono">38.2s</td>
+          <td class="error-cell">Error: expect(locator).not.toHaveText(expected) failed Locator: getByTestId('complete-header') Expected pattern: not /thank you for your order/i</td>
+        </tr>
+
+        <tr>
+          <td class="mono">SCN-44</td>
+          <td>Cart state after logout and re-login as the same user</td>
+          <td><span class="status-pill" style="background:#fde8e8;color:#c81e1e;border:1px solid #c81e1e;">failed</span></td>
+          <td>low</td>
+          <td>medium</td>
+          <td class="mono">54.3s</td>
+          <td class="error-cell">TimeoutError: locator.click: Timeout 15000ms exceeded. Call log:   - waiting for getByTestId('react-burger-menu-btn')</td>
+        </tr>
+    </tbody>
+  </table>
+
+  <footer>Generated by test-execution stage. Raw JSON parsed from a single headed Playwright run; no results fabricated or carried over from prior runs.</footer>
+</body>
+</html>

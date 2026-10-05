@@ -1,0 +1,15 @@
+# Secrets
+.env
+*.env
+
+# Dependencies
+node_modules/
+
+# Playwright artifacts (regenerated on every run)
+TestAutomate/test-results/
+TestAutomate/playwright-report/
+TestAutomate/blob-report/
+TestResults/_raw/
+
+# Local UI run state
+AgentUI/runs.json

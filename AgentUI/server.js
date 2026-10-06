@@ -2,6 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
+import os from 'node:os';
 import { execFile } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,6 +14,9 @@ const REQUIREMENT_DIR = path.join(PROJECT_ROOT, 'Requirement');
 const SPEC_DIR = path.join(PROJECT_ROOT, 'TestAutomate', 'tests');
 const MANIFEST = path.join(__dirname, 'runs.json'); // requirement basename -> spec files its tests live in
 const PORT = process.env.PORT || 4000;
+// Headed runs need a logged-in desktop. Set PLAYWRIGHT_HEADED=false on a server with no display
+// (e.g. a Linux VM, or a Windows VM without an auto-logon session).
+const HEADED = !/^(false|0|no)$/i.test(process.env.PLAYWRIGHT_HEADED || 'true');
 
 // Agent sessions on Windows need Git Bash for their Bash tool. A per-user Git install
 // (e.g. %LOCALAPPDATA%\Programs\Git) isn't found automatically, which left execution-agent with no
@@ -48,7 +52,6 @@ fs.mkdirSync(REQUIREMENT_DIR, { recursive: true });
 const rel = (abs) => path.relative(PROJECT_ROOT, abs).split(path.sep).join('/');
 const exists = (p) => fs.existsSync(path.join(PROJECT_ROOT, p));
 const isFresh = (p, since) => exists(p) && fs.statSync(path.join(PROJECT_ROOT, p)).mtimeMs >= since;
-const specBase = (p) => path.basename(p).replace(/\.spec\.ts$/, '');
 
 function readManifest() {
   try { return JSON.parse(fs.readFileSync(MANIFEST, 'utf8')); } catch { return {}; }
@@ -58,17 +61,6 @@ function writeManifest(m) { fs.writeFileSync(MANIFEST, JSON.stringify(m, null, 2
 function specFiles() {
   if (!fs.existsSync(SPEC_DIR)) return [];
   return fs.readdirSync(SPEC_DIR).filter((f) => f.endsWith('.spec.ts')).map((f) => `TestAutomate/tests/${f}`);
-}
-
-// Spec files that hold tests for a requirement: its own <base>.spec.ts, any spec carrying its
-// namespaced Scenario IDs (e.g. JIRA190-SCN-4), plus whatever the last run recorded in the manifest.
-function findSpecsFor(base) {
-  const token = `${base.replace(/[^A-Za-z0-9]/g, '')}-SCN-`;
-  const found = new Set((readManifest()[base]?.specs || []).filter(exists));
-  for (const s of specFiles()) {
-    if (specBase(s) === base || fs.readFileSync(path.join(PROJECT_ROOT, s), 'utf8').includes(token)) found.add(s);
-  }
-  return [...found].sort();
 }
 
 const escRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -93,9 +85,14 @@ function listAllTests() {
   if (listCache.key === key && listCache.tests) return Promise.resolve(listCache.tests);
   if (listCache.key === key && listCache.pending) return listCache.pending;
   const pending = new Promise((resolve, reject) => {
-    execFile('npx playwright test --list --reporter=json', { cwd: AUTOMATE_DIR, shell: true, maxBuffer: 64 * 1024 * 1024 }, (err, stdout) => {
+    execFile('npx playwright test --list --reporter=json', { cwd: AUTOMATE_DIR, shell: true, maxBuffer: 64 * 1024 * 1024 }, (err, stdout, stderr) => {
       let report;
-      try { report = JSON.parse(stdout); } catch { return reject(new Error(`Could not list Playwright tests: ${err?.message || 'unreadable output'}`)); }
+      try { report = JSON.parse(stdout); } catch {
+        // Include what Playwright actually printed: err.message alone is often just "Command failed".
+        const detail = [stderr, stdout].map((s) => (s || '').trim()).filter(Boolean).join('\n').slice(0, 2000);
+        console.error('Playwright --list failed:', err?.message, '\n', detail);
+        return reject(new Error(`Could not list Playwright tests: ${err?.message || 'unreadable output'}${detail ? `\n${detail}` : ' (no output)'}`));
+      }
       const tests = [];
       const walk = (suite) => {
         for (const sp of suite.specs || []) {
@@ -147,7 +144,9 @@ async function identifyTests(base) {
 async function analyze(base, contentChanged) {
   const testCases = `TestCases/${base}_TestDesign.csv`;
   const design = `TestDesign/${base}_PlaywrightScenarios.csv`;
-  const found = exists(design) ? await identifyTests(base) : { tests: [], grep: null, specs: findSpecsFor(base) };
+  // Tests are found by their Scenario IDs in the specs, so this works even after a reset has cleared
+  // TestDesign/ (namespaced IDs like JIRA191-SCN-4 need no design file; bare SCN-n IDs still do).
+  const found = await identifyTests(base);
   // hasTests: running the existing tests is possible. canRerun: it's the recommended default
   // (the requirement is unchanged); when it has changed, regenerating is suggested instead.
   const hasTests = found.tests.length > 0;
@@ -248,7 +247,7 @@ const PROMPTS = {
       `In your final report, list every spec file under TestAutomate/tests/ that now contains tests for these scenarios (new, extended, or mapped onto existing tests).`;
   },
   'execution-agent': (c) =>
-    `Run only the ${c.tests.length} tests that belong to requirement ${c.base}, in headed mode. They live in these spec files:\n${c.specs.map((s) => `- ${s}`).join('\n')}\n` +
+    `Run only the ${c.tests.length} tests that belong to requirement ${c.base}, in ${HEADED ? 'headed' : 'headless'} mode${HEADED ? '' : ' (this server has no display: do not pass --headed)'}. They live in these spec files:\n${c.specs.map((s) => `- ${s}`).join('\n')}\n` +
     `Select them with Playwright's title filter, passing the spec files above as arguments too: --grep "${c.grep}"\n` +
     `Tests in those files that belong to other requirements must not run. Publish ONE combined report for this requirement at TestResults/${c.base}_TestResults.html (not one per spec file).\n` +
     `Run Playwright in the foreground (not as a background task) with a long timeout; if it could take longer than ~9 minutes, run one spec file per command with the same --grep and merge the JSON results into the one report. This session ends when you reply, so only reply once the report is written.`,
@@ -566,8 +565,8 @@ async function runPipeline(c) {
 // ---- HTTP ----
 const app = express();
 
-// Password gate for when the UI is shared through a public tunnel: agents run with permission
-// checks off, so nobody without the password may reach any route. Set UI_PASSWORD in AgentUI/.env.
+// Password gate for when the UI is shared with other people: agents run with permission
+// checks off, so nobody without the password may reach any route. Set UI_PASSWORD in the project's .env.
 if (process.env.UI_PASSWORD) {
   const expected = Buffer.from(process.env.UI_PASSWORD);
   app.use((req, res, next) => {
@@ -655,7 +654,7 @@ app.post('/api/decision', (req, res) => {
 });
 
 // Polled by the page every couple of seconds. (A streaming event-source connection would be
-// lighter, but Cloudflare tunnels buffer such streams, so progress never reached shared viewers.)
+// lighter, but tunnels and reverse proxies often buffer such streams, so progress never reached viewers.)
 app.get('/api/state', (req, res) => {
   res.set('Cache-Control', 'no-store');
   if (!run) return res.json({ idle: true });
@@ -664,6 +663,6 @@ app.get('/api/state', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`QA Agent UI running at http://localhost:${PORT}`);
+  console.log(`QA Agent UI listening on port ${PORT} (http://${os.hostname()}:${PORT}) · Playwright ${HEADED ? 'headed' : 'headless'}`);
   listAllTests().catch((err) => console.warn(err.message)); // warm the test list so the first page load is quick
 });

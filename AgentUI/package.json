@@ -4,7 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node --env-file-if-exists=.env server.js"
+    "start": "node --env-file-if-exists=../.env server.js"
+  },
+  "engines": {
+    "node": ">=22.9"
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.3.289",

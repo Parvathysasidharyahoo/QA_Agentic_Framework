@@ -1,0 +1,14 @@
+# Store text with LF in the repository; check out with the platform's native endings.
+* text=auto
+
+# Shell scripts must keep LF to run on Linux; PowerShell/batch keep CRLF for Windows.
+*.sh  text eol=lf
+*.service text eol=lf
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+*.png binary
+*.jpg binary
+*.webm binary
+*.zip binary

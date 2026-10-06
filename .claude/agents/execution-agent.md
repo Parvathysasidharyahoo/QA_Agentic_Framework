@@ -1,6 +1,6 @@
 ---
 name: execution-agent
-description: Runs the Playwright automation suite in headed mode and publishes an HTML results report mapped to Scenario ID into the TestResults folder. Use when someone asks to run, execute, or report on the automated Playwright scenarios (as opposed to designing or writing them).
+description: Runs the Playwright automation suite (headed by default, headless on servers without a display) and publishes an HTML results report mapped to Scenario ID into the TestResults folder. Use when someone asks to run, execute, or report on the automated Playwright scenarios (as opposed to designing or writing them).
 tools: Bash, PowerShell, Read, Write, Glob, Grep
 model: sonnet
 ---
@@ -17,6 +17,8 @@ You will be pointed at the whole suite, a specific spec file (e.g. `TestAutomate
    npx playwright test --headed --reporter=list,json
    ```
    Route the JSON reporter's output to a file rather than letting it print to stdout — Playwright's JSON reporter writes to the path in the `PLAYWRIGHT_JSON_OUTPUT_NAME` environment variable, so set that (in whatever syntax the active shell requires) to a temporary path before invoking the command, e.g. `TestResults/_raw/<run-name>.json`. Scope to a subset with a spec file path argument or `--grep`/`--grep-invert` as needed. Never silently fall back to headless — if headed mode genuinely cannot run in the current environment (no display), stop and say so rather than substituting headless and presenting it as headed.
+
+   **Headless runs.** Run headless only when the request explicitly says so (the QA Agent UI does this when its host sets `PLAYWRIGHT_HEADED=false`, e.g. on a server VM with no desktop session). Then leave out `--headed` and state "headless" in the report's summary block instead of "headed".
 
    **Run in the foreground.** Invoke Playwright as a normal blocking command with a long timeout (up to 10 minutes) — never as a background task. When you are run as a top-level session (e.g. from the QA Agent UI), the session ends as soon as you reply, which would kill a backgrounded run before any report is written. If the requested specs together could exceed ~9 minutes, run one spec file per command (each with its own JSON output file) instead of backgrounding.
 

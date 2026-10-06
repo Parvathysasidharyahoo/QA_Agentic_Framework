@@ -41,28 +41,35 @@ export default defineConfig({
       // Headed Firefox intermittently hangs inside the login click when several Firefox windows
       // run at once (3 of 8 failed in parallel, 8 of 8 passed one at a time).
       workers: 1,
-      testMatch: /JIRA-19[13]\.spec\.ts/,
-      grep: /@JIRA191-SCN-30|@JIRA193-SCN-29/,
+      testMatch: /JIRA-19[13]\.spec\.ts|JIRA-190-TC\.spec\.ts|JIRA-19[13]-TC\.spec\.ts/,
+      grep: /@JIRA191-SCN-30|@JIRA193-SCN-29|@JIRA190-TC-036|@JIRA191-TC-029|@JIRA193-TC-029/,
       use: { ...devices['Desktop Firefox'] },
     },
     {
       name: 'webkit',
-      testMatch: /JIRA-19[13]\.spec\.ts/,
-      grep: /@JIRA191-SCN-30|@JIRA193-SCN-29/,
+      testMatch: /JIRA-19[13]\.spec\.ts|JIRA-190-TC\.spec\.ts|JIRA-19[13]-TC\.spec\.ts/,
+      grep: /@JIRA191-SCN-30|@JIRA193-SCN-29|@JIRA190-TC-036|@JIRA191-TC-029|@JIRA193-TC-029/,
       use: { ...devices['Desktop Safari'] },
     },
     {
       name: 'mobile-iphone',
-      testMatch: /JIRA-19[13]\.spec\.ts/,
-      grep: /@JIRA191-SCN-30|@JIRA193-SCN-29/,
+      testMatch: /JIRA-19[13]\.spec\.ts|JIRA-190-TC\.spec\.ts|JIRA-19[13]-TC\.spec\.ts/,
+      grep: /@JIRA191-SCN-30|@JIRA193-SCN-29|@JIRA190-TC-036|@JIRA191-TC-029|@JIRA193-TC-029/,
       use: { ...devices['iPhone 13'] },
     },
     // JIRA192-SCN-28 — 375x667 mobile viewport.
     {
       name: 'mobile-375x667',
-      testMatch: /JIRA-19[13]\.spec\.ts/,
-      grep: /@JIRA191-SCN-30|@JIRA193-SCN-29/,
+      testMatch: /JIRA-19[13]\.spec\.ts|JIRA-190-TC\.spec\.ts|JIRA-19[13]-TC\.spec\.ts/,
+      grep: /@JIRA191-SCN-30|@JIRA193-SCN-29|@JIRA190-TC-036|@JIRA191-TC-029|@JIRA193-TC-029/,
       use: { ...devices['Desktop Chrome'], viewport: { width: 375, height: 667 }, isMobile: true, hasTouch: true },
+    },
+    // JIRA191-TC-029 (review F-04/Q7): real Microsoft Edge. Requires Edge installed.
+    {
+      name: 'edge',
+      testMatch: /JIRA-19[13]-TC\.spec\.ts/,
+      grep: /@JIRA191-TC-029|@JIRA193-TC-029/,
+      use: { ...devices['Desktop Edge'], channel: 'msedge' },
     },
   ],
 });

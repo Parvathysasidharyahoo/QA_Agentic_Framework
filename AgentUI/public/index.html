@@ -407,8 +407,8 @@ async function startRun() {
   subscribe();
 }
 
-// Polls for progress rather than holding a stream open: Cloudflare tunnels buffer streamed
-// responses, so a shared public link would otherwise never see live updates.
+// Polls for progress rather than holding a stream open: tunnels and reverse proxies often buffer
+// streamed responses, so viewers behind one would otherwise never see live updates.
 let poll = { timer: null, runId: null, since: 0, stopped: false };
 
 function subscribe() {
@@ -607,7 +607,7 @@ function renderSummary(sum) {
   if (t) {
     tiles.push(kpi('Tests passed', `${t.passed}<span style="font-size:14px;color:var(--muted)"> / ${t.total}</span>`, `${t.passRate}% pass rate`, t.passed === t.total ? 'good' : ''));
     tiles.push(kpi('Failed', t.failed, t.flaky || t.skipped ? `${t.flaky} flaky · ${t.skipped} skipped` : 'No flaky or skipped tests', t.failed ? 'bad' : 'good'));
-    if (t.duration) tiles.push(kpi('Run time', esc(t.duration), 'Headed Playwright run'));
+    if (t.duration) tiles.push(kpi('Run time', esc(t.duration), 'Playwright run'));
   }
   if (sum.defects) {
     const filed = sum.defects.created + sum.defects.existing;

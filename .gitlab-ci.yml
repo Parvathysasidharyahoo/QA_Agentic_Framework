@@ -1,0 +1,34 @@
+# Quick checks on every push: dependencies install and the Playwright suite still loads.
+# It doesn't run the tests themselves (they need the live site and take several minutes).
+# The image tag must match the @playwright/test version in TestAutomate/package-lock.json.
+# If runners can't pull from mcr.microsoft.com, mirror the image into the GitLab container registry.
+
+image: mcr.microsoft.com/playwright:v1.63.0-noble
+
+stages:
+  - check
+
+variables:
+  npm_config_cache: "$CI_PROJECT_DIR/.npm"
+
+cache:
+  key:
+    files:
+      - TestAutomate/package-lock.json
+      - AgentUI/package-lock.json
+  paths:
+    - .npm/
+
+playwright-suite-loads:
+  stage: check
+  script:
+    - cd TestAutomate
+    - npm ci
+    - npx playwright test --list
+
+agent-ui-syntax:
+  stage: check
+  script:
+    - cd AgentUI
+    - npm ci
+    - node --check server.js

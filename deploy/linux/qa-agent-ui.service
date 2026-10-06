@@ -1,0 +1,25 @@
+# systemd unit for the QA Agent UI on a Linux VM.
+# Install:
+#   sudo cp deploy/linux/qa-agent-ui.service /etc/systemd/system/
+#   (edit User and WorkingDirectory below if the repo isn't at /opt/qa-agent)
+#   sudo systemctl daemon-reload && sudo systemctl enable --now qa-agent-ui
+# Logs: journalctl -u qa-agent-ui -f
+#
+# A Linux VM has no desktop session, so tests run headless: set PLAYWRIGHT_HEADED=false in /opt/qa-agent/.env.
+
+[Unit]
+Description=QA Agent UI
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=qa-runner
+WorkingDirectory=/opt/qa-agent/AgentUI
+# npm start loads ../.env (API keys, Jira, UI password, PORT)
+ExecStart=/usr/bin/env npm start
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
